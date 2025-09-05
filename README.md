@@ -1,69 +1,111 @@
-# React + TypeScript + Vite
+# 移动端应用项目
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 项目结构
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+my-mobile-app/
+├── frontend/     # React + Vite + TypeScript + Vant UI
+├── backend/      # Node.js + Express + MongoDB
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 启动步骤
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1. 安装依赖
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# 后端依赖
+cd backend
+npm install
+
+# 前端依赖
+cd ../frontend
+npm install
 ```
+
+### 2. 配置数据库
+
+确保本地 MongoDB 服务正在运行，或修改 `backend/env.config.js` 中的数据库连接地址。
+
+### 3. 启动服务
+
+**后端服务** (端口 3000):
+
+```bash
+cd backend
+npm start
+```
+
+**前端服务** (端口 5173):
+
+```bash
+cd frontend
+npm run dev
+```
+
+## 功能特性
+
+### 后端 (Express + MongoDB)
+
+- ✅ 用户注册/登录
+- ✅ JWT 身份验证
+- ✅ 密码加密存储
+- ✅ CORS 跨域支持
+- ✅ 环境配置管理
+
+### 前端 (React + Vant)
+
+- ✅ 移动端适配
+- ✅ 路由导航
+- ✅ 底部 Tabbar
+- ✅ 页面: 首页、我的、设置、登录
+- ✅ HTTP 请求封装
+
+## API 接口
+
+```
+POST /api/auth/register - 用户注册
+POST /api/auth/login    - 用户登录
+GET  /api/auth/profile  - 获取用户信息 (需要JWT)
+PUT  /api/auth/profile  - 更新用户信息 (需要JWT)
+PUT  /api/auth/password - 修改密码 (需要JWT)
+POST /api/auth/logout   - 退出登录 (需要JWT)
+```
+
+## 技术特色
+
+### 🔐 安全认证
+
+- JWT Token 身份验证
+- bcrypt 密码加密
+- 认证中间件保护
+
+### 📱 移动端优化
+
+- Vant UI 组件库
+- lib-flexible 适配方案
+- 触摸友好的交互设计
+- 安全区域适配
+
+### 🏗️ 架构设计
+
+- 前后端分离
+- RESTful API 设计
+- 模块化代码结构
+- TypeScript 类型安全
+
+## 已优化功能
+
+- ✅ 完整的用户认证流程
+- ✅ 响应式移动端界面
+- ✅ JWT 中间件保护
+- ✅ 完善的错误处理
+- ✅ 移动端样式优化
+- ✅ 代码分离和打包优化
+
+## 页面功能
+
+- 🏠 **首页**: 用户信息展示、状态查看
+- 👤 **我的**: 个人资料、头像、退出登录
+- ⚙️ **设置**: 用户名修改、密码修改、应用设置
+- 🔐 **登录**: 用户登录、注册新账户

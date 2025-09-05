@@ -1,0 +1,109 @@
+/* 移动端全局样式 */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* 移动端适配的颜色方案 */
+  color: #323233;
+  background-color: #f7f8fa;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #f7f8fa;
+  /* 移动端优化 */
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* 移动端链接样式 */
+a {
+  color: #1989fa;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:active {
+  opacity: 0.7;
+}
+
+/* 移动端标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.25em;
+}
+
+h3 {
+  font-size: 1.1em;
+}
+
+/* 移动端输入框优化 */
+input, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* 移动端按钮优化 */
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 滚动条隐藏（移动端） */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 安全区域适配 */
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f7f8fa;
+    background-color: #1a1a1a;
+  }
+
+  body {
+    background-color: #1a1a1a;
+  }
+
+  a {
+    color: #4fc3f7;
+  }
+}
