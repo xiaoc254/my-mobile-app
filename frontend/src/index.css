@@ -92,6 +92,37 @@ button {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* TabBar 自定义样式 */
+.adm-tab-bar {
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.adm-tab-bar-item {
+  position: relative;
+  padding: 8px 0;
+}
+
+.adm-tab-bar-item.adm-tab-bar-item-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: #1677ff;
+  border-radius: 2px;
+}
+
+.adm-tab-bar-item-title {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.adm-tab-bar-item-icon {
+  margin-bottom: 2px;
+}
+
 /* 深色模式支持 */
 @media (prefers-color-scheme: dark) {
   :root {
