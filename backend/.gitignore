@@ -7,18 +7,70 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 node_modules/
+jspm_packages/
+
+# Build outputs
 dist
 dist-ssr
+out/
+build/
+.cache/
+.tmp/
+
+# Local environment files
 *.local
+.env
+.env.*.local
+.env.test
+.env.development.local
+.env.production.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Optional build tools
+coverage/
+*.tsbuildinfo
+.parcel-cache
+
+# Next.js / Nuxt / Vite etc.
+.next/
+.nuxt/
+.vercel/
+.netlify/
+output/
+
+# Yarn / pnpm / npm integrity files
+.yarn-integrity
+.pnp.*
+.pnpm-debug.log*
+
+# Misc
+*.tgz

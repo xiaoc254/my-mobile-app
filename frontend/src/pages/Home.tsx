@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, List } from "antd-mobile";
 import api from "../services/api";
-
 interface UserInfo {
   username: string;
   _id: string;
@@ -67,6 +66,7 @@ export default function Home() {
             刷新信息
           </Button>
         </div>
+        <button onClick={() => navigate("/ai")}>ai聊天</button>
       </Card>
     </div>
   );
