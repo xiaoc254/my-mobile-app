@@ -1,205 +1,402 @@
-/* 移动端全局样式 */
-* {
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 移动端安全区域支持 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* 移动端视口高度优化 */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+}
+
+/* 移动端键盘弹起适配 - TabBar上方 */
+@media (max-width: 640px) {
+  /* 当键盘弹起时，减少聊天区域高度 */
+  @supports (height: 100dvh) {
+    .chat-container {
+      height: 100dvh;
+    }
+  }
+
+  /* 额外的背景和模糊效果，确保输入框清晰显示 */
+  .mobile-input-container {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border-top: 1px solid #e5e5e5 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* 微信风格的聊天界面 */
+.wechat-style {
+  background-color: #EDEDED;
+}
+
+/* 移动端输入框优化 - TabBar上方固定，全屏铺满 */
+@media (max-width: 640px) {
+  .mobile-input-container {
+    padding: 0.5rem; /* 减小padding以获得更多空间 */
+    min-height: 70px; /* 稍微减小最小高度 */
+    max-height: 200px; /* 限制最大高度，防止占用太多空间 */
+    width: 100vw; /* 确保铺满整个视口宽度 */
+    /* 移除安全区域padding，因为现在在TabBar上方 */
+    padding-bottom: 0.5rem !important;
+    /* 在移动端确保正确定位 */
+    position: fixed !important;
+    bottom: 50px !important; /* TabBar高度 */
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 500 !important; /* 小于TabBar的1000但足够高 */
+    /* 确保无边距 */
+    margin: 0 !important;
+  }
+
+  .mobile-chat-area {
+    padding-bottom: 200px; /* 为TabBar+输入框留出更多空间 */
+  }
+
+  /* 移动端输入框触摸优化 */
+  .mobile-input-container input {
+    min-height: 40px; /* 稍微减小以获得更紧凑的布局 */
+    font-size: 16px; /* 防止iOS自动缩放 */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+/* 移动端按钮触摸优化 - 按钮组 */
+.mobile-input-container button {
+  min-width: 28px; /* 按钮组中的按钮更小 */
+  min-height: 28px;
   -webkit-tap-highlight-color: transparent;
 }
 
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  /* 移动端适配的字体大小 */
-  font-size: 16px; /* 移动端基础字体大小 */
-
-  /* 移动端适配的颜色方案 */
-  color: #323233;
-  background-color: #f7f8fa;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* 按钮组布局优化 */
+.mobile-input-container .absolute.flex {
+  /* 确保按钮组不会超出容器边界 */
+  max-width: calc(100% - 0.5rem);
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: #f7f8fa;
-  font-size: 16px; /* 确保body继承基础字体大小 */
-  /* 移动端优化 */
-  -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
+  /* 按钮组间距优化 */
+  .mobile-input-container .absolute.flex {
+    gap: 0.25rem; /* 按钮之间的小间距 */
+  }
 }
 
-#root {
-  min-height: 100vh;
+/* 平板端优化 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .mobile-input-container {
+    padding: 1rem 1.5rem; /* 平板上稍大的padding */
+    max-width: 100%; /* 确保铺满宽度 */
+  }
+
+  .mobile-input-container input {
+    font-size: 16px;
+  }
+
+  .mobile-input-container button {
+    min-width: 36px; /* 平板端内嵌按钮 */
+    min-height: 36px;
+  }
+}
+
+/* 桌面端优化 */
+@media (min-width: 1025px) {
+  .mobile-input-container {
+    padding: 1rem 2rem; /* 桌面上更大的padding */
+    max-width: 100%; /* 确保铺满宽度 */
+  }
+
+  .mobile-input-container input {
+    font-size: 16px;
+    min-height: 48px; /* 桌面上稍大的输入框 */
+  }
+
+  .mobile-input-container button {
+    min-width: 40px; /* 桌面端内嵌按钮 */
+    min-height: 40px;
+  }
+}
+
+/* 超宽屏幕优化 */
+@media (min-width: 1440px) {
+  .mobile-input-container {
+    padding: 1.5rem 3rem; /* 超宽屏幕上的padding */
+  }
+}
+
+/* 移动端触摸优化 */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* 确保输入框在所有设备上都能正确铺满 */
+.mobile-input-container {
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* 移动端链接样式 */
-a {
-  color: #1989fa;
-  text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
+/* 输入框内容不会被意外截断 - 更新选择器 */
+.mobile-input-container input[type="text"],
+.mobile-input-container input:not([type="file"]) {
+  width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
 }
 
-a:active {
-  opacity: 0.7;
-}
-
-/* 移动端标题样式 */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-h1 {
-  font-size: 2em; /* 32px */
-}
-
-h2 {
-  font-size: 1.5em; /* 24px */
-}
-
-h3 {
-  font-size: 1.25em; /* 20px */
-}
-
-h4 {
-  font-size: 1.125em; /* 18px */
-}
-
-h5 {
-  font-size: 1em; /* 16px */
-}
-
-h6 {
-  font-size: 0.875em; /* 14px */
-}
-
-/* 移动端文本样式 */
-p {
-  font-size: 16px;
-  line-height: 1.5;
-  margin: 0.5em 0;
-}
-
-/* 移动端列表样式 */
-ul, ol {
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-li {
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-/* 移动端表单标签 */
-label {
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-/* 移动端通用文本大小 */
-.text-lg {
-  font-size: 18px;
-}
-
-.text-md {
-  font-size: 16px;
-}
-
-.text-sm {
-  font-size: 14px;
-}
-
-.text-xs {
-  font-size: 12px;
-}
-
-/* 移动端输入框优化 */
-input, textarea, select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border-radius: 0;
-  font-size: 16px; /* 移动端输入框字体大小，防止iOS缩放 */
-  line-height: 1.5;
-}
-
-/* 移动端按钮优化 */
-button {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border: none;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  font-size: 16px; /* 移动端按钮字体大小 */
-  line-height: 1.5;
-}
-
-/* 滚动条隐藏（移动端） */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* 安全区域适配 */
-.safe-area-inset-top {
-  padding-top: env(safe-area-inset-top);
-}
-
-.safe-area-inset-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* TabBar 自定义样式 */
-.adm-tab-bar {
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.adm-tab-bar-item {
+/* 绝对定位内嵌按钮组优化 */
+.mobile-input-container .w-full {
+  /* 确保相对定位容器正确 */
   position: relative;
-  padding: 8px 0;
 }
 
-.adm-tab-bar-item.adm-tab-bar-item-active::after {
+/* 内嵌按钮组样式 */
+.mobile-input-container button {
+  /* 确保按钮适当的圆角设计 */
+  border-radius: 8px;
+  /* 添加轻微阴影增强立体感 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 发送按钮保持圆形 */
+.mobile-input-container button:last-child {
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 输入框获得焦点时的整体容器样式 */
+.mobile-input-container .w-full:focus-within {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 确保输入框文本不会被按钮遮挡 - 需要为3个按钮留出空间 */
+.mobile-input-container .w-full input {
+  /* 右侧预留足够空间给3个按钮 */
+  padding-right: 5rem !important; /* 80px for 3 buttons */
+}
+
+@media (min-width: 640px) {
+  .mobile-input-container .w-full input {
+    padding-right: 6rem !important; /* 96px for larger buttons */
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-input-container .w-full input {
+    padding-right: 7rem !important; /* 112px for even larger buttons */
+  }
+}
+
+/* 禁用移动端选择高亮 */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 移动端滚动优化 */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 移动端按钮点击效果 */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:bg-gray-300:hover {
+    background-color: rgb(209 213 219);
+  }
+
+  .hover\:bg-blue-600:hover {
+    background-color: rgb(37 99 235);
+  }
+
+  .hover\:bg-red-600:hover {
+    background-color: rgb(220 38 38);
+  }
+}
+
+/* 提升移动端输入框体验 */
+input[type="text"], input[type="file"], textarea {
+  font-size: 16px; /* 防止iOS缩放 */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 移动端滚动条隐藏 */
+@media (max-width: 768px) {
+  .overflow-y-auto::-webkit-scrollbar {
+    display: none;
+  }
+
+  .overflow-y-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* 响应式图片预览 */
+@media (max-width: 480px) {
+  .mobile-input-container .w-16 {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+
+  .mobile-input-container .w-20 {
+    width: 4rem !important;
+    height: 4rem !important;
+  }
+}
+
+/* 隐藏文件输入框的原生样式 */
+input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* 图片加载动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 消息气泡动画 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* 打字动画 */
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+/* 消息状态动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 聊天界面优化 */
+.chat-bubble-tail {
+  position: relative;
+}
+
+/* 确保消息内容正确布局，防止图片文字重叠 */
+.chat-bubble-tail img {
+  display: block !important;
+  margin-bottom: 0.75rem;
+  clear: both;
+}
+
+.chat-bubble-tail p {
+  display: block !important;
+  clear: both;
+  margin: 0;
+}
+
+/* 确保聊天内容区域正确滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 优化多图片预览时的输入框布局 */
+.mobile-input-container {
+  overflow-y: auto; /* 允许输入框内容滚动 */
+}
+
+/* 确保AI回复在底部有足够可见空间 */
+@media (max-width: 640px) {
+  .smooth-scroll {
+    /* 在移动端为最后一条消息留出更多空间 */
+    scroll-padding-bottom: 240px;
+  }
+}
+
+@media (min-width: 641px) {
+  .smooth-scroll {
+    scroll-padding-bottom: 200px;
+  }
+}
+
+.chat-bubble-tail::before {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background: #1677ff;
-  border-radius: 2px;
+  width: 0;
+  height: 0;
 }
 
-.adm-tab-bar-item-title {
-  font-size: 14px; /* 适合移动端的TabBar字体大小 */
-  margin-top: 4px;
+.chat-bubble-user::before {
+  right: -8px;
+  border-left: 8px solid #22C55E;
+  border-top: 8px solid transparent;
 }
 
-.adm-tab-bar-item-icon {
-  margin-bottom: 2px;
-}
-
-/* 深色模式支持 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f7f8fa;
-    background-color: #1a1a1a;
-  }
-
-  body {
-    background-color: #1a1a1a;
-  }
-
-  a {
-    color: #4fc3f7;
-  }
+.chat-bubble-ai::before {
+  left: -8px;
+  border-right: 8px solid #FFFFFF;
+  border-top: 8px solid transparent;
 }
