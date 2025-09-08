@@ -5,7 +5,7 @@ import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
 import Download from "../pages/Download";
-import Ai from "../pages/Ai";
+
 
 // 路由配置接口
 export interface RouteConfig {
@@ -44,13 +44,6 @@ export const routes: RouteConfig[] = [
     path: "/download",
     component: Download,
     title: "商城",
-    hideTabBar: false,
-    requireAuth: false,
-  },
-  {
-    path: "/ai",
-    component: Ai,
-    title: "AI",
     hideTabBar: false,
     requireAuth: false,
   },
