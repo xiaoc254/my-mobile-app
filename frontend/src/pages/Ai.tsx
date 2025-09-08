@@ -27,8 +27,17 @@ export default function ChatPage() {
     setInput("");
 
     try {
+      // 动态获取 API URL
+      const getApiUrl = () => {
+        if (import.meta.env.DEV) {
+          const hostname = window.location.hostname;
+          return `http://${hostname}:3000/api/ai`;
+        }
+        return "/api/ai";
+      };
+
       // 调用 AI API
-      const res = await fetch("http://localhost:3000/api/ai", {
+      const res = await fetch(getApiUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: input }),

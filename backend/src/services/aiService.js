@@ -58,10 +58,25 @@ export const callAIModel = async (prompt, imageUrl = null) => {
   } catch (error) {
     console.error("AI 服务详细错误:", error);
 
+    // 检查是否是 API Key 缺失错误
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') {
+      console.log("OPENAI_API_KEY 未配置，返回提示信息");
+      return "请配置您的 OpenAI API Key 在 .env 文件中。";
+    }
+
     // 网络错误或超时时返回备用响应
     if (error.name === 'AbortError' || error.code === 'ETIMEDOUT' || error.type === 'system') {
       console.log("网络超时，返回备用响应");
-      return `感谢您的提问："${prompt}"。由于网络连接问题，我暂时无法连接到AI服务。这是一个模拟响应。`;
+      return `感谢您的提问："${prompt}"。由于网络连接问题，我暂时无法连接到AI服务。请检查网络连接或稍后再试。`;
+    }
+
+    // API 错误处理
+    if (error.message.includes('401')) {
+      return "API 密钥验证失败，请检查您的 OpenAI API Key 是否正确。";
+    }
+
+    if (error.message.includes('429')) {
+      return "API 调用频率超限，请稍后再试。";
     }
 
     throw error;
