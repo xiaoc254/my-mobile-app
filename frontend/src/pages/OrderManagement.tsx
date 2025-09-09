@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Card,
@@ -8,15 +8,19 @@ import {
     Tag,
     NavBar,
     Empty,
-    Badge
+    Badge,
+    Tabs,
+    Toast,
+    Loading
 } from "antd-mobile";
 import { UnorderedListOutline } from "antd-mobile-icons";
+import { orderAPI } from "../services/api";
 
 interface Order {
-    id: string;
+    _id: string;
     orderNumber: string;
-    status: "pending" | "paid" | "shipped" | "delivered" | "cancelled";
-    createTime: string;
+    status: "pending" | "paid" | "pending_shipment" | "shipped" | "delivered" | "cancelled";
+    createdAt: string;
     totalAmount: number;
     items: OrderItem[];
     shopName: string;
@@ -35,72 +39,39 @@ interface OrderItem {
 export default function OrderManagement() {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
+    const [activeTab, setActiveTab] = useState("all");
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // 模拟订单数据
-    const orders: Order[] = [
-        {
-            id: "order_1",
-            orderNumber: "202312150001",
-            status: "pending",
-            createTime: "2023-12-15 14:30",
-            totalAmount: 94,
-            shopName: "萌宠宠物",
-            items: [
-                {
-                    id: "item_1",
-                    productId: "1",
-                    name: "猫狗尿分解剂宠物生物除臭去异臭...",
-                    image: "/images/products/除味剂.jpg",
-                    price: 94,
-                    quantity: 1,
-                    spec: "500ml装"
-                }
-            ]
-        },
-        {
-            id: "order_2",
-            orderNumber: "202312140002",
-            status: "shipped",
-            createTime: "2023-12-14 10:20",
-            totalAmount: 159,
-            shopName: "宠物之家",
-            items: [
-                {
-                    id: "item_2",
-                    productId: "2",
-                    name: "猫窝四季通用冬季保暖安全感窝猫床半封闭式猫咪沙发小猫猫窝睡窝",
-                    image: "/images/products/猫床.jpg",
-                    price: 159,
-                    quantity: 1,
-                    spec: "中号"
-                }
-            ]
-        },
-        {
-            id: "order_3",
-            orderNumber: "202312130003",
-            status: "delivered",
-            createTime: "2023-12-13 16:45",
-            totalAmount: 21.8,
-            shopName: "纯野兔全粮",
-            items: [
-                {
-                    id: "item_3",
-                    productId: "1",
-                    name: "高纤兔粮营养颗粒成兔幼兔通用美毛兔粮饲料",
-                    image: "/images/products/兔粮.jpg",
-                    price: 21.8,
-                    quantity: 1,
-                    spec: "500g"
-                }
-            ]
+    // 获取订单数据
+    const fetchOrders = async () => {
+        try {
+            setLoading(true);
+            const response: any = await orderAPI.getOrders();
+            if (response.success) {
+                setOrders(response.data.orders);
+            } else {
+                Toast.show('获取订单失败');
+            }
+        } catch (error) {
+            console.error('获取订单失败:', error);
+            Toast.show('获取订单失败');
+            // 使用模拟数据作为后备
+            setOrders([]);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     const getStatusText = (status: string) => {
         const statusMap = {
             pending: "待付款",
             paid: "已付款",
+            pending_shipment: "待发货",
             shipped: "已发货",
             delivered: "已完成",
             cancelled: "已取消"
@@ -112,6 +83,7 @@ export default function OrderManagement() {
         const colorMap = {
             pending: "#ff6b35",
             paid: "#ffa502",
+            pending_shipment: "#f39c12",
             shipped: "#3742fa",
             delivered: "#2ed573",
             cancelled: "#747d8c"
@@ -122,6 +94,12 @@ export default function OrderManagement() {
     const filterOrders = () => {
         let filtered = orders;
 
+        // 按状态筛选
+        if (activeTab !== "all") {
+            filtered = filtered.filter(order => order.status === activeTab);
+        }
+
+        // 按搜索文本筛选
         if (searchText) {
             filtered = filtered.filter(order =>
                 order.orderNumber.includes(searchText) ||
@@ -135,6 +113,38 @@ export default function OrderManagement() {
 
     const handleProductClick = (productId: string) => {
         navigate(`/product/${productId}`);
+    };
+
+    // 取消订单
+    const handleCancelOrder = async (orderId: string) => {
+        try {
+            const response: any = await orderAPI.cancelOrder(orderId);
+            if (response.success) {
+                Toast.show('订单取消成功');
+                fetchOrders(); // 重新获取订单列表
+            } else {
+                Toast.show('取消订单失败');
+            }
+        } catch (error) {
+            console.error('取消订单失败:', error);
+            Toast.show('取消订单失败');
+        }
+    };
+
+    // 更新订单状态
+    const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+        try {
+            const response: any = await orderAPI.updateOrderStatus(orderId, status);
+            if (response.success) {
+                Toast.show('订单状态更新成功');
+                fetchOrders(); // 重新获取订单列表
+            } else {
+                Toast.show('更新订单状态失败');
+            }
+        } catch (error) {
+            console.error('更新订单状态失败:', error);
+            Toast.show('更新订单状态失败');
+        }
     };
 
     const filteredOrders = filterOrders();
@@ -159,12 +169,38 @@ export default function OrderManagement() {
                 />
             </div>
 
+            {/* 状态筛选标签 */}
+            <div style={{ backgroundColor: "white", paddingBottom: "8px" }}>
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    style={{
+                        "--content-padding": "0 16px"
+                    }}
+                >
+                    <Tabs.Tab title="全部" key="all" />
+                    <Tabs.Tab title="待付款" key="pending" />
+                    <Tabs.Tab title="待发货" key="pending_shipment" />
+                    <Tabs.Tab title="已发货" key="shipped" />
+                    <Tabs.Tab title="已完成" key="delivered" />
+                </Tabs>
+            </div>
+
             {/* 订单列表 */}
             <div style={{ padding: "8px 16px" }}>
-                {filteredOrders.length > 0 ? (
+                {loading ? (
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "200px"
+                    }}>
+                        <Loading />
+                    </div>
+                ) : filteredOrders.length > 0 ? (
                     filteredOrders.map((order) => (
                         <Card
-                            key={order.id}
+                            key={order._id}
                             style={{
                                 marginBottom: "12px",
                                 borderRadius: "8px"
@@ -277,7 +313,13 @@ export default function OrderManagement() {
                                     fontSize: "12px",
                                     color: "#999"
                                 }}>
-                                    {order.createTime}
+                                    {new Date(order.createdAt).toLocaleString('zh-CN', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
                                 </div>
 
                                 <div style={{ display: "flex", gap: "8px" }}>
@@ -287,14 +329,34 @@ export default function OrderManagement() {
                                                 size="small"
                                                 fill="outline"
                                                 color="default"
+                                                onClick={() => handleCancelOrder(order._id)}
                                             >
                                                 取消订单
                                             </Button>
                                             <Button
                                                 size="small"
                                                 color="primary"
+                                                onClick={() => handleUpdateOrderStatus(order._id, 'paid')}
                                             >
                                                 立即付款
+                                            </Button>
+                                        </>
+                                    )}
+
+                                    {order.status === "pending_shipment" && (
+                                        <>
+                                            <Button
+                                                size="small"
+                                                fill="outline"
+                                                color="default"
+                                            >
+                                                催发货
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                color="primary"
+                                            >
+                                                联系客服
                                             </Button>
                                         </>
                                     )}
@@ -305,12 +367,14 @@ export default function OrderManagement() {
                                                 size="small"
                                                 fill="outline"
                                                 color="default"
+                                                onClick={() => { Toast.show('物流查询功能开发中...'); }}
                                             >
                                                 查看物流
                                             </Button>
                                             <Button
                                                 size="small"
                                                 color="primary"
+                                                onClick={() => handleUpdateOrderStatus(order._id, 'delivered')}
                                             >
                                                 确认收货
                                             </Button>
@@ -322,6 +386,7 @@ export default function OrderManagement() {
                                             size="small"
                                             fill="outline"
                                             color="default"
+                                            onClick={() => { Toast.show('再次购买功能开发中...'); }}
                                         >
                                             再次购买
                                         </Button>
