@@ -19,7 +19,10 @@ const AI_SERVICES = {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     }),
-    parseResponse: (data) => data.choices[0].message.content
+    parseResponse: (data) => ({
+      content: data.choices[0].message.content,
+      usage: data.usage || null
+    })
   },
 
   // 智谱AI (ChatGLM) - 支持图片分析
@@ -38,7 +41,10 @@ const AI_SERVICES = {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     }),
-    parseResponse: (data) => data.choices[0].message.content
+    parseResponse: (data) => ({
+      content: data.choices[0].message.content,
+      usage: data.usage || null
+    })
   },
 
   // 通义千问 (阿里云) - 支持图片分析
@@ -59,7 +65,10 @@ const AI_SERVICES = {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     }),
-    parseResponse: (data) => data.output.choices[0].message.content
+    parseResponse: (data) => ({
+      content: data.output.choices[0].message.content,
+      usage: data.usage || null
+    })
   },
 
   // 百度文心一言 - 支持图片分析
@@ -76,7 +85,10 @@ const AI_SERVICES = {
     formatHeaders: (apiKey) => ({
       "Content-Type": "application/json"
     }),
-    parseResponse: (data) => data.result,
+    parseResponse: (data) => ({
+      content: data.result,
+      usage: data.usage || null
+    }),
     // 百度需要特殊的token获取
     requiresToken: true
   }
@@ -237,7 +249,9 @@ export const callAIModel = async (prompt, imageUrl = null) => {
           console.log(`${aiService.type} API 响应成功`);
 
           try {
-            return aiService.parseResponse(data);
+            const parsedResponse = aiService.parseResponse(data);
+            console.log(`${aiService.type} API Tokens使用情况:`, parsedResponse.usage);
+            return parsedResponse;
           } catch (parseError) {
             console.error("响应解析错误:", parseError);
             throw new Error(`API 响应格式错误: ${JSON.stringify(data)}`);

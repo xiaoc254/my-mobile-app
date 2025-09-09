@@ -51,7 +51,7 @@ export const routes: RouteConfig[] = [
     path: "/ai",
     component: Ai,
     title: "AI",
-    hideTabBar: false,
+    hideTabBar: true,
     requireAuth: false,
   },
   {

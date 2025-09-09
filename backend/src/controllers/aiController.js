@@ -15,11 +15,37 @@ export const getAIResponse = async (req, res) => {
       timestamp: new Date().toISOString()
     });
 
-    const reply = await callAIModel(prompt, imageUrl);
+    const aiResponse = await callAIModel(prompt, imageUrl);
     const duration = Date.now() - startTime;
 
     console.log(`AI请求完成，耗时: ${duration}ms`);
-    res.json({ reply, duration });
+
+    // 处理AI服务响应格式
+    let reply, usage;
+    if (typeof aiResponse === 'string') {
+      // 向后兼容：如果返回的是字符串（错误情况或API Key未配置）
+      reply = aiResponse;
+      usage = null;
+    } else {
+      // 正常情况：返回包含content和usage的对象
+      reply = aiResponse.content;
+      usage = aiResponse.usage;
+    }
+
+    // 格式化tokens使用信息
+    const tokensInfo = usage ? {
+      promptTokens: usage.prompt_tokens || 0,
+      completionTokens: usage.completion_tokens || 0,
+      totalTokens: usage.total_tokens || 0
+    } : null;
+
+    console.log('Tokens使用情况:', tokensInfo);
+
+    res.json({
+      reply,
+      duration,
+      tokens: tokensInfo
+    });
 
   } catch (err) {
     const duration = Date.now() - startTime;

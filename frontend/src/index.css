@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 防止移动端过度滚动但保持正常滚动功能 */
+html, body {
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: white;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 应用容器优化 */
+#root {
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: white;
+  overscroll-behavior: none;
+}
+
 /* 移动端安全区域支持 */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .safe-area-bottom {
@@ -20,7 +41,23 @@
   }
 }
 
-/* 移动端键盘弹起适配 - TabBar上方 */
+/* 聊天内容区域滚动优化 */
+.chat-content-area {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保内容可以滚动到底部 */
+.chat-messages {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 移动端键盘弹起适配优化 */
 @media (max-width: 640px) {
   /* 当键盘弹起时，减少聊天区域高度 */
   @supports (height: 100dvh) {
@@ -29,13 +66,16 @@
     }
   }
 
-  /* 额外的背景和模糊效果，确保输入框清晰显示 */
+  /* 输入框贴底优化 */
   .mobile-input-container {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
     border-top: 1px solid #e5e5e5 !important;
     margin-bottom: 0 !important;
+    /* 减少内边距让输入框更贴近底部 */
+    padding-top: 0.5rem !important;
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom)) !important;
   }
 }
 
@@ -44,21 +84,21 @@
   background-color: #EDEDED;
 }
 
-/* 移动端输入框优化 - TabBar上方固定，全屏铺满 */
+/* 移动端输入框优化 - 贴底固定 */
 @media (max-width: 640px) {
   .mobile-input-container {
     padding: 0.5rem; /* 减小padding以获得更多空间 */
-    min-height: 70px; /* 稍微减小最小高度 */
+    min-height: 60px; /* 减小最小高度 */
     max-height: 200px; /* 限制最大高度，防止占用太多空间 */
     width: 100vw; /* 确保铺满整个视口宽度 */
-    /* 移除安全区域padding，因为现在在TabBar上方 */
-    padding-bottom: 0.5rem !important;
+    /* 贴底显示，移除TabBar相关设置 */
+    padding-bottom: max(0.25rem, env(safe-area-inset-bottom)) !important;
     /* 在移动端确保正确定位 */
     position: fixed !important;
-    bottom: 50px !important; /* TabBar高度 */
+    bottom: 0 !important; /* 完全贴底 */
     left: 0 !important;
     right: 0 !important;
-    z-index: 500 !important; /* 小于TabBar的1000但足够高 */
+    z-index: 1000 !important; /* 最高层级 */
     /* 确保无边距 */
     margin: 0 !important;
   }
@@ -237,15 +277,28 @@ input[type="text"], input[type="file"], textarea {
   user-select: text;
 }
 
-/* 移动端滚动条隐藏 */
+/* 移动端滚动条优化 - 显示细滚动条 */
 @media (max-width: 768px) {
   .overflow-y-auto::-webkit-scrollbar {
-    display: none;
+    width: 4px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
 
   .overflow-y-auto {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
   }
 }
 
@@ -399,4 +452,256 @@ input[type="file"] {
   left: -8px;
   border-right: 8px solid #FFFFFF;
   border-top: 8px solid transparent;
+}
+
+/* 现代化动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+}
+
+/* 页面加载动画 */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* 渐变文字效果 */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 毛玻璃效果增强 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* 按钮悬停效果 */
+.modern-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.modern-button:hover::before {
+  left: 100%;
+}
+
+/* 现代化聊天气泡效果 */
+.bubble-user {
+  position: relative;
+  background: #fbbf24;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  animation: slideInRight 0.3s ease-out;
+  transform-origin: right center;
+}
+
+.bubble-user::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-left-color: #fbbf24;
+  border-right: 0;
+  border-top: 0;
+  margin-top: -4px;
+  margin-right: -8px;
+  z-index: 1;
+}
+
+.bubble-ai {
+  position: relative;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideInLeft 0.3s ease-out;
+  transform-origin: left center;
+}
+
+.bubble-ai::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  border-right-color: #ffffff;
+  border-left: 0;
+  border-top: 0;
+  margin-top: -4px;
+  margin-left: -8px;
+  z-index: 1;
+}
+
+.bubble-ai::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: -9px;
+  width: 0;
+  height: 0;
+  border: 9px solid transparent;
+  border-right-color: #e5e7eb;
+  border-left: 0;
+  border-top: 0;
+  margin-top: -4px;
+  margin-left: -9px;
+  z-index: 0;
+}
+
+/* 移动端聊天气泡优化 */
+@media (max-width: 640px) {
+  .bubble-user, .bubble-ai {
+    max-width: calc(100vw - 100px);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* 移动端消息间距优化 */
+  .chat-content-area .flex.items-start {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* 输入框焦点效果 */
+.input-focus-ring {
+  position: relative;
+}
+
+.input-focus-ring::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  padding: 2px;
+  background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.input-focus-ring:focus-within::before {
+  opacity: 1;
+}
+
+/* 隐藏滚动条但保持功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 响应式字体大小 */
+@media (max-width: 640px) {
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 641px) {
+  .text-responsive {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive {
+    font-size: 1.125rem;
+  }
+}
+
+/* 防止水平滚动的通用类 */
+.no-horizontal-scroll {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+/* 确保所有flex容器不会水平溢出 */
+.flex {
+  min-width: 0;
+}
+
+/* AI页面特定的防滚动样式 */
+.chat-container {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
+.chat-container * {
+  max-width: 100%;
+  box-sizing: border-box;
 }
