@@ -9,7 +9,7 @@ export default function PetTypeSelect() {
 
   const handlePetTypeSelect = (petType: string) => {
     console.log('选择宠物类型:', petType)
-    // 这里可以跳转到下一步或处理选择逻辑
+    navigate('/pet-gender-select')
   }
 
   return (

@@ -5,6 +5,8 @@ import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
 import PetTypeSelect from "../pages/PetTypeSelect";
+import PetGenderSelect from "../pages/PetGenderSelect";
+import PetAvatarNickname from "../pages/PetAvatarNickname";
 import Download from "../pages/Download";
 
 
@@ -45,6 +47,20 @@ export const routes: RouteConfig[] = [
     path: "/pet-type-select",
     component: PetTypeSelect,
     title: "选择宠物类型",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/pet-gender-select",
+    component: PetGenderSelect,
+    title: "选择宠物性别",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/pet-avatar-nickname",
+    component: PetAvatarNickname,
+    title: "头像和昵称",
     hideTabBar: true,
     requireAuth: false,
   },
