@@ -4,6 +4,7 @@ import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
+import PetTypeSelect from "../pages/PetTypeSelect";
 import Download from "../pages/Download";
 
 
@@ -38,6 +39,13 @@ export const routes: RouteConfig[] = [
     component: Pet,
     title: "宠物",
     hideTabBar: false,
+    requireAuth: false,
+  },
+  {
+    path: "/pet-type-select",
+    component: PetTypeSelect,
+    title: "选择宠物类型",
+    hideTabBar: true,
     requireAuth: false,
   },
   {
