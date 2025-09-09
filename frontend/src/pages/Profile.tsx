@@ -67,7 +67,7 @@ export default function Profile() {
     <div style={{ padding: "20px", paddingBottom: "60px" }}>
       <Card>
         <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                    <div style={{
+          <div style={{
             width: "60px",
             height: "60px",
             borderRadius: "50%",
@@ -92,8 +92,30 @@ export default function Profile() {
           <List.Item extra="已登录">登录状态</List.Item>
         </List>
 
+        {/* 我的服务 */}
+        <div style={{ marginTop: "20px" }}>
+          <List header="我的服务">
+            <List.Item
+              prefix="📋"
+              onClick={() => navigate("/order-management")}
+              clickable
+              arrow
+            >
+              订单管理
+            </List.Item>
+            <List.Item
+              prefix="⚙️"
+              onClick={() => navigate("/settings")}
+              clickable
+              arrow
+            >
+              设置
+            </List.Item>
+          </List>
+        </div>
+
         <div style={{ marginTop: "30px" }}>
-                    <Button
+          <Button
             color="danger"
             block
             onClick={handleLogout}

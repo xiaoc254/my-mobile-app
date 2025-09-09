@@ -1,6 +1,6 @@
 import { verifyToken } from "../services/jwtService.js";
 
-export function authenticateToken(req, res, next) {
+function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -16,3 +16,5 @@ export function authenticateToken(req, res, next) {
     return res.status(403).json({ message: "无效的token" });
   }
 }
+
+export default authenticateToken;

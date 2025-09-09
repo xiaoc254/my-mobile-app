@@ -1,32 +1,71 @@
-// App.tsx
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { TabBar } from "antd-mobile";
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import Login from "./pages/Login";
+import {
+  AppOutline,
+  UserOutline,
+  ShopbagOutline,
+  TeamOutline
+} from "antd-mobile-icons";
+import { routes, tabs, getHideTabBarPages } from "./route/route";
 
 function App() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const hideTabBarPages = getHideTabBarPages();
+  const shouldHideTabBar = hideTabBarPages.includes(location.pathname) ||
+    location.pathname.startsWith('/product/');
 
-  const handleTabClick = (path: string) => {
-    navigate(path);
+  const getTabIcon = (path: string) => {
+    switch (path) {
+      case "/":
+        return <AppOutline />;
+      case "/pet":
+        return <TeamOutline />;
+      case "/download":
+        return <ShopbagOutline />;
+      case "/profile":
+        return <UserOutline />;
+      default:
+        return <AppOutline />;
+    }
   };
+
 
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/login" element={<Login />} />
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<route.component />}
+          />
+        ))}
       </Routes>
 
-      <TabBar>
-        <TabBar.Item key="home" icon="🏠" title="首页" onClick={() => handleTabClick("/")} />
-        <TabBar.Item key="profile" icon="👤" title="我的" onClick={() => handleTabClick("/profile")} />
-        <TabBar.Item key="settings" icon="⚙️" title="设置" onClick={() => handleTabClick("/settings")} />
-      </TabBar>
+      {!shouldHideTabBar && (
+        <TabBar
+          activeKey={location.pathname}
+          onChange={(key) => navigate(key)}
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            backgroundColor: "white",
+            borderTop: "1px solid #f0f0f0"
+          }}
+        >
+          {tabs.map((tab) => (
+            <TabBar.Item
+              key={tab.path}
+              icon={getTabIcon(tab.path)}
+              title={tab.title}
+            />
+          ))}
+        </TabBar>
+      )}
     </div>
   );
 }

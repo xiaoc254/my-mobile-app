@@ -48,7 +48,7 @@ export default function Home() {
         ) : (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
             <p>请先登录以查看更多功能</p>
-                                    <Button
+            <Button
               color="primary"
               onClick={() => navigate("/login")}
             >
@@ -58,13 +58,22 @@ export default function Home() {
         )}
 
         <div style={{ marginTop: "20px" }}>
-                    <Button
+          <Button
             color="primary"
             block
             loading={loading}
             onClick={getUserInfo}
+            style={{ marginBottom: "10px" }}
           >
             刷新信息
+          </Button>
+
+          <Button
+            color="success"
+            block
+            onClick={() => navigate("/shop")}
+          >
+            🛒 浏览商城
           </Button>
         </div>
       </Card>
