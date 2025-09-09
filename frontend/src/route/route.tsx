@@ -4,6 +4,7 @@ import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
+import PetTypeSelect from "../pages/PetTypeSelect";
 import Download from "../pages/Download";
 
 
@@ -35,13 +36,22 @@ export const routes: RouteConfig[] = [
   },
 
   {
-    path: "/download",
-    component: Download,
-    title: "商城",
-    hideTabBar: false,
+    path: "/pet-type-select",
+    component: PetTypeSelect,
+    title: "选择宠物类型",
+    hideTabBar: true,
     requireAuth: false,
   },
+
   {
+    path: "/pet",
+    component: Pet,
+    title: "宠物",
+    hideTabBar: false,
+    requireAuth: true,
+  },
+  {
+
     path: "/profile",
     component: Profile,
     title: "我的",
@@ -62,6 +72,7 @@ export const routes: RouteConfig[] = [
     hideTabBar: true,
     requireAuth: false,
   },
+
 ];
 
 // 标签栏配置数组
