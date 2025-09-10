@@ -7,6 +7,8 @@ import Pet from "../pages/Pet";
 import PetTypeSelect from "../pages/PetTypeSelect";
 import PetGenderSelect from "../pages/PetGenderSelect";
 import PetAvatarNickname from "../pages/PetAvatarNickname";
+import PetAgeWeight from "../pages/PetAgeWeight";
+import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 
 
@@ -57,13 +59,27 @@ export const routes: RouteConfig[] = [
     hideTabBar: true,
     requireAuth: false,
   },
-  {
-    path: "/pet-avatar-nickname",
-    component: PetAvatarNickname,
-    title: "头像和昵称",
-    hideTabBar: true,
-    requireAuth: false,
-  },
+        {
+          path: "/pet-avatar-nickname",
+          component: PetAvatarNickname,
+          title: "头像和昵称",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/pet-age-weight",
+          component: PetAgeWeight,
+          title: "宠物年龄和体重",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/test",
+          component: TestPage,
+          title: "功能测试",
+          hideTabBar: true,
+          requireAuth: false,
+        },
   {
     path: "/download",
     component: Download,

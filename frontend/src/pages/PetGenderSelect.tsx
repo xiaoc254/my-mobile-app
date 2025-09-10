@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
+import { usePetForm } from '../contexts/PetFormContext'
 
 export default function PetGenderSelect() {
   const navigate = useNavigate()
+  const { updatePetData } = usePetForm()
 
   const handleBack = () => {
     navigate(-1)
@@ -9,6 +11,8 @@ export default function PetGenderSelect() {
 
   const handleGenderSelect = (gender: string) => {
     console.log('选择宠物性别:', gender)
+    // 保存选择的宠物性别
+    updatePetData({ gender: gender })
     navigate('/pet-avatar-nickname')
   }
 
@@ -69,8 +73,7 @@ export default function PetGenderSelect() {
         <div style={{
           width: '100%',
           height: '12px',
-          background: '#fff',
-          border: '1px solid #007AFF',
+          background: '#E5E5E7',
           borderRadius: '6px',
           display: 'flex',
           overflow: 'hidden'
@@ -88,13 +91,12 @@ export default function PetGenderSelect() {
           <div style={{
             width: '25%',
             height: '100%',
-            background: '#fff',
-            borderRight: '1px solid #007AFF'
+            background: '#E5E5E7'
           }}></div>
           <div style={{
             width: '25%',
             height: '100%',
-            background: '#fff'
+            background: '#E5E5E7'
           }}></div>
         </div>
       </div>

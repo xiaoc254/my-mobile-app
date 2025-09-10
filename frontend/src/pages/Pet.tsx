@@ -2,12 +2,90 @@ import petImage from '../image/1.png'
 import catImage from '../image/cat.jpg'
 import dogImage from '../image/dog.jpg'
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+// @ts-ignore
+import { petAPI } from '../services/api'
+
+interface Pet {
+  id: string
+  nickname: string
+  type: string
+  gender: string
+  avatar: string | null
+  startDate: string
+  weight: number
+  createdAt: string
+}
 
 export default function Pet() {
   const navigate = useNavigate()
+  const [pets, setPets] = useState<Pet[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // 获取宠物列表
+  const fetchPets = async () => {
+    try {
+      const response = await petAPI.getPets()
+      if (response.success) {
+        setPets(response.data)
+      }
+    } catch (error) {
+      console.error('获取宠物列表失败:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPets()
+  }, [])
+
+  // 监听页面可见性变化，当从其他页面返回时刷新数据
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchPets()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
 
   const handleAddPet = () => {
     navigate('/pet-type-select')
+  }
+
+  // 获取宠物头像
+  const getPetAvatar = (pet: Pet) => {
+    if (pet.avatar) {
+      return pet.avatar
+    }
+    // 根据宠物类型返回默认头像
+    switch (pet.type) {
+      case 'cat':
+        return catImage
+      case 'dog':
+        return dogImage
+      default:
+        return catImage
+    }
+  }
+
+  // 获取宠物类型显示名称
+  const getPetTypeName = (type: string) => {
+    switch (type) {
+      case 'cat':
+        return '喵星人'
+      case 'dog':
+        return '汪星人'
+      case 'other':
+        return '其它星人'
+      default:
+        return '未知'
+    }
   }
 
   return (
@@ -115,96 +193,147 @@ export default function Pet() {
             </h3>
           </div>
 
-          {/* 宠物列表 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            {/* 左侧宠物区域 */}
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              alignItems: 'center'
-            }}>
-              {/* 布丁 - 猫咪 */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                  border: '2px solid #FFBF6B',
-                  overflow: 'hidden'
-                }}>
-                  <img 
-                    src={catImage} 
-                    alt="布丁" 
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '50%'
-                    }}
-                  />
-                </div>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: '500',
-                  color: '#000'
-                }}>
-                  布丁
-                </span>
-              </div>
+                 {/* 宠物列表 */}
+                 <div style={{
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'space-between'
+                 }}>
+                   {/* 左侧宠物区域 */}
+                   <div style={{
+                     display: 'flex',
+                     gap: '12px',
+                     alignItems: 'center',
+                     flexWrap: 'wrap'
+                   }}>
+                     {/* 静态宠物 - 布丁和雪球 */}
+                     <div style={{
+                       display: 'flex',
+                       flexDirection: 'column',
+                       alignItems: 'center',
+                       gap: '4px'
+                     }}>
+                       <div style={{
+                         width: '40px',
+                         height: '40px',
+                         borderRadius: '50%',
+                         background: '#fff',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                         border: '2px solid #FFBF6B',
+                         overflow: 'hidden'
+                       }}>
+                         <img
+                           src={catImage}
+                           alt="布丁"
+                           style={{
+                             width: '100%',
+                             height: '100%',
+                             objectFit: 'cover',
+                             borderRadius: '50%'
+                           }}
+                         />
+                       </div>
+                       <span style={{
+                         fontSize: '10px',
+                         fontWeight: '500',
+                         color: '#000'
+                       }}>
+                         布丁
+                       </span>
+                     </div>
 
-              {/* 雪球 - 狗狗 */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                  border: '2px solid #FFBF6B',
-                  overflow: 'hidden'
-                }}>
-                  <img 
-                    src={dogImage} 
-                    alt="雪球" 
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '50%'
-                    }}
-                  />
-                </div>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: '500',
-                  color: '#000'
-                }}>
-                  雪球
-                </span>
-              </div>
-            </div>
+                     <div style={{
+                       display: 'flex',
+                       flexDirection: 'column',
+                       alignItems: 'center',
+                       gap: '4px'
+                     }}>
+                       <div style={{
+                         width: '40px',
+                         height: '40px',
+                         borderRadius: '50%',
+                         background: '#fff',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                         border: '2px solid #FFBF6B',
+                         overflow: 'hidden'
+                       }}>
+                         <img
+                           src={dogImage}
+                           alt="雪球"
+                           style={{
+                             width: '100%',
+                             height: '100%',
+                             objectFit: 'cover',
+                             borderRadius: '50%'
+                           }}
+                         />
+                       </div>
+                       <span style={{
+                         fontSize: '10px',
+                         fontWeight: '500',
+                         color: '#000'
+                       }}>
+                         雪球
+                       </span>
+                     </div>
+
+                     {/* 动态宠物列表 - 从后端获取 */}
+                     {loading ? (
+                       <div style={{
+                         fontSize: '10px',
+                         color: '#666',
+                         padding: '10px'
+                       }}>
+                         加载中...
+                       </div>
+                     ) : (
+                       pets.filter(pet => pet.nickname !== '11').map((pet) => (
+                         <div key={pet.id} style={{
+                           display: 'flex',
+                           flexDirection: 'column',
+                           alignItems: 'center',
+                           gap: '4px'
+                         }}>
+                           <div style={{
+                             width: '40px',
+                             height: '40px',
+                             borderRadius: '50%',
+                             background: '#fff',
+                             display: 'flex',
+                             alignItems: 'center',
+                             justifyContent: 'center',
+                             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                             border: '2px solid #FFBF6B',
+                             overflow: 'hidden'
+                           }}>
+                             <img
+                               src={getPetAvatar(pet)}
+                               alt={pet.nickname}
+                               style={{
+                                 width: '100%',
+                                 height: '100%',
+                                 objectFit: 'cover',
+                                 borderRadius: '50%'
+                               }}
+                             />
+                           </div>
+                           <span style={{
+                             fontSize: '10px',
+                             fontWeight: '500',
+                             color: '#000'
+                           }}>
+                             {pet.nickname}
+                           </span>
+                         </div>
+                       ))
+                     )}
+                   </div>
             
             {/* 右侧添加宠物按钮 */}
             <div 

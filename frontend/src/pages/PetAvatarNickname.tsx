@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { usePetForm } from '../contexts/PetFormContext'
 import catImage from '../image/cat.jpg'
 
 export default function PetAvatarNickname() {
   const navigate = useNavigate()
-  const [nickname, setNickname] = useState('')
+  const { petData, updatePetData } = usePetForm()
+  const [nickname, setNickname] = useState(petData.nickname || '')
   const [error, setError] = useState('')
   const [showAvatarModal, setShowAvatarModal] = useState(false)
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(petData.avatar || null)
 
   const handleBack = () => {
     navigate(-1)
@@ -23,8 +25,15 @@ export default function PetAvatarNickname() {
       return
     }
     setError('')
+    
+    // 保存昵称和头像信息
+    updatePetData({ 
+      nickname: nickname.trim(),
+      avatar: selectedAvatar
+    })
+    
     console.log('昵称:', nickname)
-    // 这里可以跳转到下一步或处理逻辑
+    navigate('/pet-age-weight')
   }
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,8 +169,7 @@ export default function PetAvatarNickname() {
         <div style={{
           width: '100%',
           height: '12px',
-          background: '#fff',
-          border: '1px solid #007AFF',
+          background: '#E5E5E7',
           borderRadius: '6px',
           display: 'flex',
           overflow: 'hidden'
@@ -184,7 +192,7 @@ export default function PetAvatarNickname() {
           <div style={{
             width: '25%',
             height: '100%',
-            background: '#fff'
+            background: '#E5E5E7'
           }}></div>
         </div>
       </div>
