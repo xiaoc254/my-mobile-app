@@ -21,6 +21,25 @@ export default function Pet() {
   const navigate = useNavigate()
   const [pets, setPets] = useState<Pet[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
+  
+  // 任务完成状态管理
+  const [taskCompletionStatus, setTaskCompletionStatus] = useState<Record<string, boolean>>({
+    'exercise': false,
+    'feeding': false,
+    'log': false,
+    'temperature': false
+  })
+  
+  // 创建包含静态宠物的完整宠物列表
+  const getAllPets = () => {
+    const staticPets = [
+      { id: 'buding', nickname: '布丁', type: 'cat', avatar: catImage },
+      { id: 'xueqiu', nickname: '雪球', type: 'dog', avatar: dogImage }
+    ]
+    const dynamicPets = pets.filter(pet => pet.nickname !== '11')
+    return [...staticPets, ...dynamicPets]
+  }
 
   // 获取宠物列表
   const fetchPets = async () => {
@@ -45,6 +64,15 @@ export default function Pet() {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchPets()
+        // 检查是否有任务需要标记为已完成
+        const lastVisitedTask = localStorage.getItem('lastVisitedTask')
+        if (lastVisitedTask) {
+          setTaskCompletionStatus(prev => ({
+            ...prev,
+            [lastVisitedTask]: true
+          }))
+          localStorage.removeItem('lastVisitedTask')
+        }
       }
     }
 
@@ -56,6 +84,26 @@ export default function Pet() {
 
   const handleAddPet = () => {
     navigate('/pet-type-select')
+  }
+
+  // 处理任务完成
+  const handleTaskComplete = (taskType: string) => {
+    // 保存当前任务类型到localStorage
+    localStorage.setItem('lastVisitedTask', taskType)
+    navigate('/pet-detail', { state: { selectedPetId: selectedPetId || 'buding' } })
+  }
+
+  // 处理其他任务完成（不跳转）
+  const handleOtherTaskComplete = (taskType: string) => {
+    setTaskCompletionStatus(prev => ({
+      ...prev,
+      [taskType]: true
+    }))
+  }
+
+  // 处理宠物点击事件
+  const handlePetClick = (petId: string) => {
+    setSelectedPetId(petId)
   }
 
   // 获取宠物头像
@@ -74,18 +122,40 @@ export default function Pet() {
     }
   }
 
-  // 获取宠物类型显示名称
-  const getPetTypeName = (type: string) => {
-    switch (type) {
-      case 'cat':
-        return '喵星人'
-      case 'dog':
-        return '汪星人'
-      case 'other':
-        return '其它星人'
-      default:
-        return '未知'
+
+  // 获取当前选中的宠物
+  const getSelectedPet = () => {
+    if (!selectedPetId) return null
+    return pets.find(pet => pet.id === selectedPetId)
+  }
+
+  // 获取选中宠物的头像
+  const getSelectedPetAvatar = () => {
+    if (!selectedPetId) return catImage
+    
+    // 处理静态宠物
+    if (selectedPetId === 'buding') return catImage
+    if (selectedPetId === 'xueqiu') return dogImage
+    
+    // 处理动态宠物
+    const selectedPet = pets.find(pet => pet.id === selectedPetId)
+    if (selectedPet) {
+      return getPetAvatar(selectedPet)
     }
+    
+    return catImage
+  }
+
+  // 获取排序后的宠物列表（点击的宠物在第一位）
+  const getOrderedPets = () => {
+    const allPets = getAllPets()
+    if (!selectedPetId) return allPets
+    
+    const selectedPet = allPets.find(pet => pet.id === selectedPetId)
+    if (!selectedPet) return allPets
+    
+    const otherPets = allPets.filter(pet => pet.id !== selectedPetId)
+    return [selectedPet, ...otherPets]
   }
 
   return (
@@ -206,84 +276,7 @@ export default function Pet() {
                      alignItems: 'center',
                      flexWrap: 'wrap'
                    }}>
-                     {/* 静态宠物 - 布丁和雪球 */}
-                     <div style={{
-                       display: 'flex',
-                       flexDirection: 'column',
-                       alignItems: 'center',
-                       gap: '4px'
-                     }}>
-                       <div style={{
-                         width: '40px',
-                         height: '40px',
-                         borderRadius: '50%',
-                         background: '#fff',
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                         border: '2px solid #FFBF6B',
-                         overflow: 'hidden'
-                       }}>
-                         <img
-                           src={catImage}
-                           alt="布丁"
-                           style={{
-                             width: '100%',
-                             height: '100%',
-                             objectFit: 'cover',
-                             borderRadius: '50%'
-                           }}
-                         />
-                       </div>
-                       <span style={{
-                         fontSize: '10px',
-                         fontWeight: '500',
-                         color: '#000'
-                       }}>
-                         布丁
-                       </span>
-                     </div>
-
-                     <div style={{
-                       display: 'flex',
-                       flexDirection: 'column',
-                       alignItems: 'center',
-                       gap: '4px'
-                     }}>
-                       <div style={{
-                         width: '40px',
-                         height: '40px',
-                         borderRadius: '50%',
-                         background: '#fff',
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                         border: '2px solid #FFBF6B',
-                         overflow: 'hidden'
-                       }}>
-                         <img
-                           src={dogImage}
-                           alt="雪球"
-                           style={{
-                             width: '100%',
-                             height: '100%',
-                             objectFit: 'cover',
-                             borderRadius: '50%'
-                           }}
-                         />
-                       </div>
-                       <span style={{
-                         fontSize: '10px',
-                         fontWeight: '500',
-                         color: '#000'
-                       }}>
-                         雪球
-                       </span>
-                     </div>
-
-                     {/* 动态宠物列表 - 从后端获取 */}
+                     {/* 统一的宠物列表 */}
                      {loading ? (
                        <div style={{
                          fontSize: '10px',
@@ -293,16 +286,31 @@ export default function Pet() {
                          加载中...
                        </div>
                      ) : (
-                       pets.filter(pet => pet.nickname !== '11').map((pet) => (
-                         <div key={pet.id} style={{
-                           display: 'flex',
-                           flexDirection: 'column',
-                           alignItems: 'center',
-                           gap: '4px'
-                         }}>
+                       getOrderedPets().map((pet) => (
+                         <div 
+                           key={pet.id} 
+                           onClick={() => handlePetClick(pet.id)}
+                           style={{
+                             display: 'flex',
+                             flexDirection: 'column',
+                             alignItems: 'center',
+                             gap: '4px',
+                             cursor: 'pointer',
+                             transition: 'transform 0.2s ease'
+                           }}
+                           onMouseDown={(e) => {
+                             e.currentTarget.style.transform = 'scale(0.95)'
+                           }}
+                           onMouseUp={(e) => {
+                             e.currentTarget.style.transform = 'scale(1)'
+                           }}
+                           onMouseLeave={(e) => {
+                             e.currentTarget.style.transform = 'scale(1)'
+                           }}
+                         >
                            <div style={{
-                             width: '40px',
-                             height: '40px',
+                             width: '50px',
+                             height: '50px',
                              borderRadius: '50%',
                              background: '#fff',
                              display: 'flex',
@@ -313,7 +321,7 @@ export default function Pet() {
                              overflow: 'hidden'
                            }}>
                              <img
-                               src={getPetAvatar(pet)}
+                               src={pet.avatar || (pet.type === 'cat' ? catImage : dogImage)}
                                alt={pet.nickname}
                                style={{
                                  width: '100%',
@@ -346,8 +354,8 @@ export default function Pet() {
                 cursor: 'pointer'
               }}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '50px',
+                height: '50px',
                 borderRadius: '50%',
                 borderLeft: '2px solid #fff',
                 display: 'flex',
@@ -413,8 +421,8 @@ export default function Pet() {
               overflow: 'hidden'
             }}>
               <img 
-                src={catImage} 
-                alt="猫咪头像" 
+                src={getSelectedPetAvatar()} 
+                alt={selectedPetId === 'buding' ? '布丁' : selectedPetId === 'xueqiu' ? '雪球' : getSelectedPet()?.nickname || "默认头像"} 
                 style={{
                   width: '100%',
                   height: '100%',
@@ -463,18 +471,20 @@ export default function Pet() {
                   运动计划
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => handleTaskComplete('exercise')}
+                style={{
+                  background: taskCompletionStatus.exercise ? '#28a745' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                {taskCompletionStatus.exercise ? '已完成' : '去完成'}
               </button>
             </div>
 
@@ -508,18 +518,20 @@ export default function Pet() {
                   喂食计划
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => handleOtherTaskComplete('feeding')}
+                style={{
+                  background: taskCompletionStatus.feeding ? '#28a745' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                {taskCompletionStatus.feeding ? '已完成' : '去完成'}
               </button>
             </div>
 
@@ -553,18 +565,20 @@ export default function Pet() {
                   每日日志
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => handleOtherTaskComplete('log')}
+                style={{
+                  background: taskCompletionStatus.log ? '#28a745' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                {taskCompletionStatus.log ? '已完成' : '去完成'}
               </button>
             </div>
 
@@ -598,18 +612,20 @@ export default function Pet() {
                   体温记录
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => handleOtherTaskComplete('temperature')}
+                style={{
+                  background: taskCompletionStatus.temperature ? '#28a745' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}>
+                {taskCompletionStatus.temperature ? '已完成' : '去完成'}
               </button>
             </div>
           </div>

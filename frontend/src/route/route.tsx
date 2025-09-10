@@ -8,6 +8,7 @@ import PetTypeSelect from "../pages/PetTypeSelect";
 import PetGenderSelect from "../pages/PetGenderSelect";
 import PetAvatarNickname from "../pages/PetAvatarNickname";
 import PetAgeWeight from "../pages/PetAgeWeight";
+import PetDetail from "../pages/PetDetail";
 import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 
@@ -70,6 +71,13 @@ export const routes: RouteConfig[] = [
           path: "/pet-age-weight",
           component: PetAgeWeight,
           title: "宠物年龄和体重",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/pet-detail",
+          component: PetDetail,
+          title: "宠物详情",
           hideTabBar: true,
           requireAuth: false,
         },
