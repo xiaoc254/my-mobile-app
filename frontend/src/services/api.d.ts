@@ -31,3 +31,4 @@ declare const petAPI: PetAPI;
 declare const authAPI: AuthAPI;
 
 export { petAPI, authAPI };
+
