@@ -1,6 +1,6 @@
 // src/components/Pages/HomePage.tsx
 import { useState, useEffect } from 'react';
-import type { Page } from '../types';
+import type { Page } from '../../types';
 
 interface HomePageProps {
   onNavigate: (page: Page) => void;
