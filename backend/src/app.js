@@ -38,7 +38,9 @@ if (apiKey && apiKey !== 'your-api-key-here') {
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// 增加请求体大小限制以支持图片上传 (50MB)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // 注册所有路由（包括 ai、auth 等）
 app.use("/api", routes);

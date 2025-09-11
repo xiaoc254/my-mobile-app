@@ -13,6 +13,13 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* 全局字体自适应：更适合手机的比例 */
+html {
+  /* iPhone 宽度 375px 时约 16px，窄屏稍大些，超大屏不超过 18px */
+  font-size: clamp(16px, 4.2vw, 18px);
+  line-height: 1.6;
+}
+
 /* 应用容器优化 */
 #root {
   height: 100%;
@@ -43,7 +50,9 @@ html, body {
 
 /* 聊天内容区域滚动优化 */
 .chat-content-area {
-  height: 100%;
+  /* 让父级 flex 控制高度，避免 100% 导致无法滚动 */
+  min-height: 0;
+  height: auto;
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
@@ -75,7 +84,7 @@ html, body {
     margin-bottom: 0 !important;
     /* 减少内边距让输入框更贴近底部 */
     padding-top: 0.5rem !important;
-    padding-bottom: max(0.25rem, env(safe-area-inset-bottom)) !important;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
   }
 }
 
@@ -215,23 +224,22 @@ html, body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 输入框获得焦点时的整体容器样式 */
+/* 输入框获得焦点时的整体容器样式 - 已禁用 */
 .mobile-input-container .w-full:focus-within {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-  border-color: #3b82f6;
-  transition: all 0.2s ease-in-out;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 /* 确保输入框文本不会被按钮遮挡 - 需要为3个按钮留出空间 */
 .mobile-input-container .w-full input {
   /* 右侧预留足够空间给3个按钮 */
-  padding-right: 5rem !important; /* 80px for 3 buttons */
+  padding-right: 6.5rem !important; /* 104px for bigger buttons */
 }
 
 @media (min-width: 640px) {
   .mobile-input-container .w-full input {
-    padding-right: 6rem !important; /* 96px for larger buttons */
+    padding-right: 7.5rem !important; /* 120px for larger buttons */
   }
 }
 

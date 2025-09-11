@@ -5,9 +5,9 @@ import axios from "axios";
 const getBaseURL = () => {
   // 开发环境判断
   if (import.meta.env.DEV) {
-    // 获取当前窗口的 hostname，在移动设备上会是实际的 IP 地址
-    const hostname = window.location.hostname;
-    return `http://${hostname}:3000/api`;
+    // 开发环境走同源相对路径，让 Vite 代理转发到后端，
+    // 这样内网穿透只需要暴露前端端口即可
+    return '/api';
   }
 
   // 生产环境使用相对路径或配置的域名

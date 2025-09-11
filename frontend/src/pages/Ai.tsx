@@ -121,11 +121,11 @@ export default function ChatPage() {
     try {
       toast.loading("正在处理图片...", { id: "image-processing" });
 
-      // 使用新的压缩工具
+      // 使用新的压缩工具 - 优化压缩参数以减少文件大小
       const compressedDataUrl = await compressImage(file, {
-        quality: 0.7,
-        maxWidth: 800,
-        maxHeight: 800,
+        quality: 0.5,
+        maxWidth: 600,
+        maxHeight: 600,
       });
 
       addImage(file, compressedDataUrl);
@@ -200,8 +200,8 @@ export default function ChatPage() {
       // 动态获取 API URL
       const getApiUrl = () => {
         if (import.meta.env.DEV) {
-          const hostname = window.location.hostname;
-          return `http://${hostname}:3000/api/ai`;
+          // 开发环境走同源相对路径，交给 Vite 代理到后端
+          return "/api/ai";
         }
         return "/api/ai";
       };
@@ -241,6 +241,10 @@ export default function ChatPage() {
           timestamp: new Date(),
           status: "sent",
         });
+        // 确保AI回复后滚动到底部
+        setTimeout(() => {
+          scrollToBottom(true);
+        }, 50);
         toast.success("AI回复完成");
       }, thinkingTime);
     } catch (error) {
@@ -282,30 +286,28 @@ export default function ChatPage() {
             className: "text-sm",
           }}
         />
-        {/* 顶部导航 - 专业设计 */}
-        <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between h-[60px] z-10 shadow-sm w-full overflow-hidden">
-          <div className="flex items-center gap-3 w-full min-w-0">
+        {/* 顶部导航 - 美化设计 */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100 px-4 py-4 flex items-center justify-between h-[70px] z-10 shadow-md w-full overflow-hidden">
+          <div className="flex items-center gap-4 w-full min-w-0">
             <button
               onClick={() => navigate("/")}
-              className="text-gray-700 text-xl font-medium hover:text-gray-900 transition-colors"
+              className="text-gray-700 text-2xl font-medium hover:text-blue-600 transition-all duration-200 hover:scale-110"
             >
               ←
             </button>
             <div className="flex-1 text-center">
-              <h1 className="font-semibold text-gray-900 text-lg">
-                宠物AI分析
+              <h1 className="font-bold text-gray-900 text-2xl tracking-wide">
+                🐶 宠物AI智能助手
               </h1>
-              <div className="text-xs text-gray-500 -mt-1">172.20.10.2</div>
+              <div className="text-base text-blue-600 font-medium -mt-1">
+                在线服务
+              </div>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden shadow-sm">
-                <img
-                  src="https://via.placeholder.com/32/e6e6e6/999999?text=🐶"
-                  alt="用户头像"
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                <span className="text-xl">🐶</span>
               </div>
-              <div className="text-xs text-gray-600 mt-1">用户</div>
+              <div className="text-sm text-gray-700 mt-1 font-medium">用户</div>
             </div>
           </div>
         </div>
@@ -313,26 +315,39 @@ export default function ChatPage() {
         {/* 聊天内容 */}
         <div
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-4 smooth-scroll bg-gray-50 chat-content-area w-full"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-6 space-y-6 smooth-scroll bg-gradient-to-b from-gray-50 to-blue-50 chat-content-area w-full"
           style={{
             paddingBottom:
               messages.length > 0
                 ? imagePreviews.length > 0
-                  ? "200px"
-                  : "160px"
-                : "20px",
+                  ? "260px"
+                  : "220px"
+                : "40px",
             maxWidth: "100%",
           }}
         >
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center min-h-full">
-              <div className="text-6xl mb-4">🐕</div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                欢迎使用宠物AI分析
+            <div className="flex flex-col items-center justify-center text-center min-h-full px-6">
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-full p-8 mb-6 shadow-lg">
+                <div className="text-8xl">🐕</div>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4 leading-tight">
+                欢迎使用宠物AI智能助手
               </h2>
-              <p className="text-gray-600 text-base px-8 leading-relaxed">
+              <p className="text-gray-600 text-xl px-4 leading-relaxed mb-6">
                 请描述您的宠物情况，我将为您提供专业分析
               </p>
+              <div className="flex flex-wrap justify-center gap-3 text-base text-gray-500">
+                <span className="bg-blue-50 px-4 py-2 rounded-full">
+                  📷 图片分析
+                </span>
+                <span className="bg-purple-50 px-4 py-2 rounded-full">
+                  💬 智能问答
+                </span>
+                <span className="bg-green-50 px-4 py-2 rounded-full">
+                  🐈 健康建议
+                </span>
+              </div>
             </div>
           ) : (
             <AnimatePresence>
@@ -352,16 +367,20 @@ export default function ChatPage() {
                 >
                   {/* AI头像 - 在左侧 */}
                   {msg.role === "ai" && (
-                    <div className="flex flex-col items-center mr-3">
-                      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg flex-shrink-0 shadow-md overflow-hidden">
+                    <div className="flex flex-col items-center mr-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xl flex-shrink-0 shadow-lg overflow-hidden">
                         <img
-                          src="https://via.placeholder.com/48/cccccc/666666?text=AI"
+                          src="/ai_avater.png"
                           alt="AI头像"
-                          className="w-full h-full object-cover"
+                          style={{
+                            width: 32,
+                            height: 32,
+                            objectFit: "cover",
+                          }}
                         />
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">
-                        宠物训练师
+                      <div className="text-base text-blue-600 mt-2 font-medium">
+                        AI助手
                       </div>
                     </div>
                   )}
@@ -374,10 +393,10 @@ export default function ChatPage() {
                   >
                     {/* 消息气泡 */}
                     <div
-                      className={`relative px-4 py-3 rounded-2xl max-w-[85%] min-w-[120px] shadow-md ${
+                      className={`relative px-5 py-4 rounded-3xl max-w-[85%] min-w-[140px] shadow-lg ${
                         msg.role === "user"
-                          ? "bg-yellow-400 text-black rounded-tr-md bubble-user"
-                          : "bg-white text-gray-800 rounded-tl-md bubble-ai border border-gray-200"
+                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-tr-lg bubble-user"
+                          : "bg-white text-gray-800 rounded-tl-lg bubble-ai border border-gray-100"
                       }`}
                     >
                       {/* 消息状态指示器 */}
@@ -409,9 +428,9 @@ export default function ChatPage() {
 
                       {msg.text && (
                         <p
-                          className={`text-base leading-relaxed block break-words ${
+                          className={`text-xl leading-relaxed block break-words ${
                             msg.role === "user"
-                              ? "text-black font-medium"
+                              ? "text-white font-medium"
                               : "text-gray-800"
                           }`}
                           style={{
@@ -427,7 +446,7 @@ export default function ChatPage() {
                     {/* 时间戳 */}
                     <div
                       className={clsx(
-                        "text-xs mt-2 px-1 text-gray-500",
+                        "text-base mt-3 px-2 text-gray-400",
                         msg.role === "user" ? "text-right" : "text-left"
                       )}
                     >
@@ -437,15 +456,13 @@ export default function ChatPage() {
 
                   {/* 用户头像 - 在右侧 */}
                   {msg.role === "user" && (
-                    <div className="flex flex-col items-center ml-3">
-                      <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg flex-shrink-0 shadow-md overflow-hidden">
-                        <img
-                          src="https://via.placeholder.com/48/e6e6e6/999999?text=🐶"
-                          alt="用户头像"
-                          className="w-full h-full object-cover"
-                        />
+                    <div className="flex flex-col items-center ml-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-xl flex-shrink-0 shadow-lg overflow-hidden">
+                        <span className="text-white font-bold">🐶</span>
                       </div>
-                      <div className="text-xs text-gray-600 mt-1">用户</div>
+                      <div className="text-base text-green-600 mt-2 font-medium">
+                        用户
+                      </div>
                     </div>
                   )}
                 </motion.div>
@@ -463,29 +480,35 @@ export default function ChatPage() {
                 transition={{ duration: 0.3 }}
                 className="flex items-start mb-6 flex-row justify-start pl-4"
               >
-                <div className="flex flex-col items-center mr-3">
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg flex-shrink-0 shadow-md overflow-hidden animate-pulse">
+                <div className="flex flex-col items-center mr-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xl flex-shrink-0 shadow-lg overflow-hidden animate-pulse">
                     <img
-                      src="https://via.placeholder.com/48/cccccc/666666?text=AI"
+                      src="/ai_avater.png"
                       alt="AI头像"
-                      className="w-full h-full object-cover"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        objectFit: "cover",
+                      }}
                     />
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">宠物训练师</div>
+                  <div className="text-base text-blue-600 mt-2 font-medium">
+                    AI助手
+                  </div>
                 </div>
                 <div>
-                  <div className="bg-white text-gray-800 rounded-2xl rounded-tl-md px-4 py-3 shadow-md border border-gray-200 bubble-ai min-w-[120px]">
+                  <div className="bg-white text-gray-800 rounded-3xl rounded-tl-lg px-5 py-4 shadow-lg border border-gray-100 bubble-ai min-w-[140px]">
                     <div className="flex space-x-2 items-center">
-                      <span className="text-gray-700 text-sm mr-2">
-                        正在思考
+                      <span className="text-gray-700 text-lg mr-3">
+                        正在思考中...
                       </span>
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
+                      <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
                       <div
-                        className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                        className="w-3 h-3 bg-purple-500 rounded-full animate-bounce"
                         style={{ animationDelay: "0.15s" }}
                       ></div>
                       <div
-                        className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"
+                        className="w-3 h-3 bg-green-500 rounded-full animate-bounce"
                         style={{ animationDelay: "0.3s" }}
                       ></div>
                     </div>
@@ -501,25 +524,25 @@ export default function ChatPage() {
 
         {/* 底部输入栏 - 简洁设计 */}
         <div
-          className="fixed left-0 right-0 mobile-input-container bg-white border-t border-gray-200 z-50
-                      px-4 py-2 shadow-sm w-full overflow-hidden"
+          className="fixed left-0 right-0 mobile-input-container bg-gradient-to-t from-white to-gray-50 z-50
+                      px-4 py-3 w-full overflow-hidden shadow-lg"
           style={{
             bottom: "0",
             overscrollBehavior: "none",
             paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
-            paddingTop: "0.5rem",
+            paddingTop: "0.25rem",
             maxWidth: "100vw",
           }}
         >
           <div className="relative z-10">
             {/* 多图片预览区域 */}
             {imagePreviews.length > 0 && (
-              <div className="mb-4 max-h-44 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <div className="flex flex-wrap gap-3 mb-4">
+              <div className="mb-2 max-h-28 overflow-y-auto bg-gray-50 rounded-lg p-2">
+                <div className="flex flex-wrap gap-2 mb-2">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative inline-block group">
                       {preview === "loading" ? (
-                        <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex items-center justify-center animate-pulse">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex items-center justify-center animate-pulse">
                           <div className="text-sm text-gray-600 flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
                             处理中
@@ -531,7 +554,7 @@ export default function ChatPage() {
                             <img
                               src={preview}
                               alt={`预览图片 ${index + 1}`}
-                              className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow duration-200"
+                              className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow duration-200"
                             />
                           </PhotoView>
                           <motion.button
@@ -560,8 +583,8 @@ export default function ChatPage() {
               </div>
             )}
 
-            {/* 输入框和按钮的现代化布局 */}
-            <div className="flex items-end gap-3 w-full max-w-full min-w-0">
+            {/* 输入框和按钮的嵌入式布局 */}
+            <div className="w-full">
               {/* 隐藏的文件输入 */}
               <input
                 ref={fileInputRef}
@@ -579,16 +602,20 @@ export default function ChatPage() {
                 id="camera-input"
               />
 
-              {/* 输入框容器 - 按钮在右侧 */}
-              <div className="flex-1 min-w-0 max-w-full bg-gray-100 rounded-2xl border border-gray-300 focus-within:border-blue-400 transition-colors duration-200 relative overflow-hidden">
+              {/* 输入框容器 - 美化对话气泡样式 */}
+              <div
+                className="relative w-full bg-white rounded-3xl shadow-xl border-2 border-blue-100 overflow-hidden"
+                style={{ border: "none" }}
+              >
                 <div className="flex items-end">
                   {/* 文本输入区域 */}
-                  <div className="flex-1 min-w-0 max-w-full">
+                  <div className="flex-1 min-w-0">
                     <TextareaAutosize
                       ref={textareaRef}
-                      className="w-full bg-transparent border-none py-3 pl-4 pr-20 text-base
-                                 focus:outline-none placeholder-gray-500 rounded-2xl resize-none
-                                 max-h-32 leading-relaxed"
+                      className="w-full bg-transparent border-0
+                                 py-4 pl-5 pr-24 text-xl focus:outline-none focus:ring-0 focus:border-0 placeholder-gray-400 resize-none shadow-none
+                                 max-h-28 leading-relaxed font-medium"
+                      style={{ outline: "none", boxShadow: "none" }}
                       placeholder={
                         selectedImages.length > 0 &&
                         !imagePreviews.includes("loading")
@@ -609,16 +636,16 @@ export default function ChatPage() {
                     />
                   </div>
 
-                  {/* 右侧按钮组 */}
-                  <div className="flex items-center gap-1 pr-2 pb-2">
+                  {/* 右侧按钮组 - 嵌入在输入框内 */}
+                  <div className="flex items-center gap-2 pr-4 pb-3">
                     {/* 相册选择按钮 */}
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => fileInputRef.current?.click()}
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-700
-                                 w-8 h-8 rounded-full flex items-center justify-center
-                                 transition-all duration-200"
+                      className="bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-gray-600
+                                 w-10 h-10 rounded-full flex items-center justify-center
+                                 transition-all duration-200 shadow-md border border-blue-200"
                       title="从相册选择"
                     >
                       <span className="text-sm">🖼️</span>
@@ -631,36 +658,36 @@ export default function ChatPage() {
                       onClick={() =>
                         document.getElementById("camera-input")?.click()
                       }
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-700
-                                 w-8 h-8 rounded-full flex items-center justify-center
-                                 transition-all duration-200 lg:hidden"
+                      className="bg-gradient-to-br from-green-50 to-blue-50 hover:from-green-100 hover:to-blue-100 text-gray-600
+                                 w-10 h-10 rounded-full flex items-center justify-center
+                                 transition-all duration-200 lg:hidden shadow-md border border-green-200"
                       title="拍照"
                     >
                       <span className="text-sm">📷</span>
                     </motion.button>
+
+                    {/* 发送按钮 - 嵌入在输入框内 */}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={clsx(
+                        "w-11 h-11 rounded-full font-bold text-xl transition-all duration-200 flex items-center justify-center shadow-lg",
+                        (input.trim() || selectedImages.length > 0) &&
+                          !imagePreviews.includes("loading")
+                          ? "bg-blue-500 hover:bg-blue-600 text-white"
+                          : "bg-gray-300 cursor-not-allowed text-gray-500"
+                      )}
+                      onClick={handleSend}
+                      disabled={
+                        (!input.trim() && selectedImages.length === 0) ||
+                        imagePreviews.includes("loading")
+                      }
+                    >
+                      <span>→</span>
+                    </motion.button>
                   </div>
                 </div>
               </div>
-
-              {/* 发送按钮 - 独立在外 */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={clsx(
-                  "w-11 h-11 rounded-full font-bold text-base transition-all duration-200 flex items-center justify-center flex-shrink-0",
-                  (input.trim() || selectedImages.length > 0) &&
-                    !imagePreviews.includes("loading")
-                    ? "bg-blue-500 hover:bg-blue-600 text-white shadow-md"
-                    : "bg-gray-300 cursor-not-allowed text-gray-500"
-                )}
-                onClick={handleSend}
-                disabled={
-                  (!input.trim() && selectedImages.length === 0) ||
-                  imagePreviews.includes("loading")
-                }
-              >
-                <span>→</span>
-              </motion.button>
             </div>
           </div>
         </div>
