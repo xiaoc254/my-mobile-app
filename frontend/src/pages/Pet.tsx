@@ -12,6 +12,9 @@ export default function Pet() {
     const handleRizhi = () => {
     navigate('/pet-type-rizhi')
   }
+      const handleJiangKang = () => {
+    navigate('/pet-type-jiangkang')
+  }
   
 
 return (
@@ -339,7 +342,7 @@ return (
                 </span>
               </div>
               <button
-              onClick={handleRizhi}
+              
               style={{
                 background: '#FFBF6B',
                 border: 'none',
@@ -401,7 +404,10 @@ return (
             </div>
 
             {/* 每日日志 */}
-            <div style={{
+            
+            <div 
+            onClick={ handleJiangKang}
+            style={{
               background: '#fff',
               borderRadius: '10px',
               padding: '10px',

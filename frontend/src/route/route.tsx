@@ -7,7 +7,7 @@ import Pet from "../pages/Pet";
 import PetTypeSelect from "../pages/PetTypeSelect";
 import PetTypeRizhi from "../pages/PetTyperizhi";
 import PetTypeQx from "../pages/PetTypeQx"; 
-
+    import PetTypeJiangKang from "../pages/PetTypejiangkang";
 // 路由配置接口
 export interface RouteConfig {
 path: string;
@@ -39,6 +39,13 @@ requireAuth: false,
     path: "/pet-type-select",
     component: PetTypeSelect,
     title: "选择宠物类型",
+    hideTabBar: true,
+requireAuth: false,
+},
+{
+    path: "/pet-type-jiangkang",
+    component: PetTypeJiangKang,
+    title: "宠物健康",
     hideTabBar: true,
 requireAuth: false,
 },
