@@ -1,6 +1,4 @@
 // src/types/index.ts
-export type Page = 'home' | 'monitoring' | 'analysis' | 'result';
-
 export interface EmotionResult {
   sadness: number;
   unease: number;
@@ -14,3 +12,5 @@ export interface SoundData {
   volume: number;
   waveform: number[];
 }
+
+export type Page = 'home' | 'monitoring' | 'analysis' | 'pet' | 'profile' | 'settings';
