@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { TabBar } from "antd-mobile";
 import { routes, tabs, getHideTabBarPages } from "./route/route";
-import { PetFormProvider } from "./contexts/PetFormContext";
+
 
 function App() {
   const navigate = useNavigate();
@@ -81,9 +81,9 @@ function App() {
 export default function RouterWrapper() {
   return (
     <Router>
-      <PetFormProvider>
+      
         <App />
-      </PetFormProvider>
+     
     </Router>
   );
 }
