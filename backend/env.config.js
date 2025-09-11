@@ -7,7 +7,7 @@ export const config = {
   PORT: process.env.PORT || 3000,
 
   // AI服务配置
-  AI_SERVICE: process.env.AI_SERVICE || "openai", // openai, zhipu, qwen, wenxin
+  AI_SERVICE: process.env.AI_SERVICE || "zhipu", // openai, zhipu, qwen, wenxin
 
   // OpenAI配置
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
