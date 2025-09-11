@@ -4,12 +4,6 @@ import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
-import PetTypeSelect from "../pages/PetTypeSelect";
-import PetGenderSelect from "../pages/PetGenderSelect";
-import PetAvatarNickname from "../pages/PetAvatarNickname";
-import PetAgeWeight from "../pages/PetAgeWeight";
-import PetDetail from "../pages/PetDetail";
-import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 
 
@@ -30,7 +24,6 @@ export interface TabConfig {
   title: string;
 }
 
-
 // 路由配置数组
 export const routes: RouteConfig[] = [
   {
@@ -41,54 +34,20 @@ export const routes: RouteConfig[] = [
     requireAuth: false,
   },
   {
-    path: "/pet-type-select",
-    component: PetTypeSelect,
-    title: "选择宠物类型",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/pet-gender-select",
-    component: PetGenderSelect,
-    title: "选择宠物性别",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-        {
-          path: "/pet-avatar-nickname",
-          component: PetAvatarNickname,
-          title: "头像和昵称",
-          hideTabBar: true,
-          requireAuth: false,
-        },
-        {
-          path: "/pet-age-weight",
-          component: PetAgeWeight,
-          title: "宠物年龄和体重",
-          hideTabBar: true,
-          requireAuth: false,
-        },
-        {
-          path: "/pet-detail",
-          component: PetDetail,
-          title: "宠物详情",
-          hideTabBar: true,
-          requireAuth: false,
-        },
-        {
-          path: "/test",
-          component: TestPage,
-          title: "功能测试",
-          hideTabBar: true,
-          requireAuth: false,
-        },
-  {
     path: "/pet",
     component: Pet,
     title: "宠物",
     hideTabBar: false,
-    requireAuth: true,
+    requireAuth: false,
   },
+  {
+    path: "/download",
+    component: Download,
+    title: "商城",
+    hideTabBar: false,
+    requireAuth: false,
+  },
+
   {
     path: "/profile",
     component: Profile,
@@ -108,13 +67,6 @@ export const routes: RouteConfig[] = [
     component: Login,
     title: "登录",
     hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/download",
-    component: Download,
-    title: "下载",
-    hideTabBar: false,
     requireAuth: false,
   },
 ];
