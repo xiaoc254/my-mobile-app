@@ -9,9 +9,6 @@ export default function Pet() {
   const handleAddPet = () => {
     navigate('/pet-type-select')
   }
-    const shengyin = () => {
-    navigate('/HomePage')
-  }
 
   return (
     <div style={{
@@ -428,7 +425,7 @@ export default function Pet() {
                 </span>
               </div>
               <button 
-               onClick={shengyin}
+              
               style={{
                 background: '#FFBF6B',
                 border: 'none',
