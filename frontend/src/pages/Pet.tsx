@@ -5,9 +5,12 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Pet() {
   const navigate = useNavigate()
-
+  
   const handleAddPet = () => {
     navigate('/pet-type-select')
+  }
+    const shengyin = () => {
+    navigate('/HomePage')
   }
 
   return (
@@ -424,7 +427,9 @@ export default function Pet() {
                   每日日志
                 </span>
               </div>
-              <button style={{
+              <button 
+               onClick={shengyin}
+              style={{
                 background: '#FFBF6B',
                 border: 'none',
                 borderRadius: '12px',

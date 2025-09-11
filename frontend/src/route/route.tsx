@@ -6,7 +6,8 @@ import Login from "../pages/Login";
 import Pet from "../pages/Pet";
 import PetTypeSelect from "../pages/PetTypeSelect";
 import Download from "../pages/Download";
-
+import HomePage from "../components/pages/HomePage";
+import SoundMonitoring from "../components/pages/SoundMonitoring";
 
 // 路由配置接口
 export interface RouteConfig {
@@ -25,6 +26,10 @@ export interface TabConfig {
   title: string;
 }
 
+// 创建包装组件以传递props
+const HomePageWrapper: React.FC = () => <HomePage onNavigate={() => {}} />;
+const SoundMonitoringWrapper: React.FC = () => <SoundMonitoring onNavigate={() => {}} onDataCollect={() => {}} />;
+
 // 路由配置数组
 export const routes: RouteConfig[] = [
   {
@@ -34,7 +39,6 @@ export const routes: RouteConfig[] = [
     hideTabBar: false,
     requireAuth: false,
   },
-
   {
     path: "/pet-type-select",
     component: PetTypeSelect,
@@ -42,7 +46,27 @@ export const routes: RouteConfig[] = [
     hideTabBar: true,
     requireAuth: false,
   },
-
+  {
+    path: "/HomePage",
+    component: HomePageWrapper,
+    title: "宠物日志",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/SoundMonitoring",
+    component: SoundMonitoringWrapper,
+    title: "录音监控",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+    {
+    path: "/SoundMonitoring",
+    component: SoundMonitoringWrapper,
+    title: "录音监控",
+    hideTabBar: true,
+    requireAuth: false,
+  },
   {
     path: "/pet",
     component: Pet,
@@ -51,7 +75,6 @@ export const routes: RouteConfig[] = [
     requireAuth: true,
   },
   {
-
     path: "/profile",
     component: Profile,
     title: "我的",
@@ -72,7 +95,13 @@ export const routes: RouteConfig[] = [
     hideTabBar: true,
     requireAuth: false,
   },
-
+  {
+    path: "/download",
+    component: Download,
+    title: "下载",
+    hideTabBar: false,
+    requireAuth: false,
+  },
 ];
 
 // 标签栏配置数组

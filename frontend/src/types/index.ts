@@ -1,18 +1,16 @@
+// src/types/index.ts
 export type Page = 'home' | 'monitoring' | 'analysis' | 'result';
 
-export interface EmotionData {
-  name: string;
-  percentage: number;
-  color: string;
+export interface EmotionResult {
+  sadness: number;
+  unease: number;
+  anxiety: number;
+  anger: number;
+  calm: number;
 }
 
-export interface AnalysisResult {
-  emotions: EmotionData[];
-  summary: string;
-}
-
-export interface SoundBar {
-  id: number;
-  height: number;
-  color: string;
+export interface SoundData {
+  duration: number;
+  volume: number;
+  waveform: number[];
 }
