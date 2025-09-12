@@ -8,6 +8,7 @@ import Download from "../pages/Download";
 import Product from "../pages/Product";
 import Shop from "../pages/Shop";
 import OrderManagement from "../pages/OrderManagement";
+import Cart from "../pages/Cart";
 import Ai from "../pages/Ai";
 import PetTypeSelect from "../pages/PetTypeSelect";
 import PetGenderSelect from "../pages/PetGenderSelect";
@@ -50,7 +51,7 @@ export const routes: RouteConfig[] = [
     requireAuth: false,
   },
   {
-    path:'/feeding-complete',
+    path: "/feeding-complete",
     component: FeedingComplete,
     title: "喂食完成",
     hideTabBar: true,
@@ -132,6 +133,13 @@ export const routes: RouteConfig[] = [
     title: "登录",
     hideTabBar: true,
     requireAuth: false,
+  },
+  {
+    path: "/cart",
+    component: Cart,
+    title: "购物车",
+    hideTabBar: true,
+    requireAuth: true,
   },
   {
     path: "/product/:id",

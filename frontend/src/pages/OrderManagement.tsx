@@ -1,232 +1,460 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  Image,
+  Button,
+  SearchBar,
+  Tag,
+  NavBar,
+  Empty,
+  Badge,
+  Tabs,
+  Toast,
+  Loading,
+} from "antd-mobile";
+import { UnorderedListOutline } from "antd-mobile-icons";
+import { orderAPI } from "../services/apiz";
 
 interface Order {
-  id: string;
-  productName: string;
-  quantity: number;
-  price: number;
-  status: "pending" | "paid" | "shipped" | "delivered" | "cancelled";
-  orderDate: string;
-  image: string;
+  _id: string;
+  orderNumber: string;
+  status:
+    | "pending"
+    | "paid"
+    | "pending_shipment"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
+  createdAt: string;
+  totalAmount: number;
+  items: OrderItem[];
+  shopName: string;
 }
 
-const OrderManagement: React.FC = () => {
+interface OrderItem {
+  id: string;
+  productId: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+  spec: string;
+}
+
+export default function OrderManagement() {
   const navigate = useNavigate();
+  const [searchText, setSearchText] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
-  const statusOptions = [
-    { id: "all", name: "全部", color: "gray" },
-    { id: "pending", name: "待付款", color: "orange" },
-    { id: "paid", name: "已付款", color: "blue" },
-    { id: "shipped", name: "已发货", color: "purple" },
-    { id: "delivered", name: "已送达", color: "green" },
-    { id: "cancelled", name: "已取消", color: "red" },
-  ];
+  // 获取订单数据
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response: any = await orderAPI.getOrders();
+      if (response.success) {
+        setOrders(response.data.orders);
+      } else {
+        Toast.show("获取订单失败");
+      }
+    } catch (error) {
+      console.error("获取订单失败:", error);
+      Toast.show("获取订单失败");
+      // 使用模拟数据作为后备
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // 模拟获取订单数据
-    const fetchOrders = async () => {
-      setLoading(true);
-      setTimeout(() => {
-        setOrders([
-          {
-            id: "1",
-            productName: "优质狗粮",
-            quantity: 2,
-            price: 199.98,
-            status: "pending",
-            orderDate: "2024-01-15",
-            image: "/api/placeholder/100/100",
-          },
-          {
-            id: "2",
-            productName: "猫咪玩具",
-            quantity: 1,
-            price: 29.99,
-            status: "shipped",
-            orderDate: "2024-01-14",
-            image: "/api/placeholder/100/100",
-          },
-          {
-            id: "3",
-            productName: "宠物洗发水",
-            quantity: 1,
-            price: 49.99,
-            status: "delivered",
-            orderDate: "2024-01-10",
-            image: "/api/placeholder/100/100",
-          },
-        ]);
-        setLoading(false);
-      }, 1000);
-    };
-
     fetchOrders();
   }, []);
 
-  const filteredOrders =
-    selectedStatus === "all"
-      ? orders
-      : orders.filter((order) => order.status === selectedStatus);
+  const getStatusText = (status: string) => {
+    const statusMap = {
+      pending: "待付款",
+      paid: "已付款",
+      pending_shipment: "待发货",
+      shipped: "已发货",
+      delivered: "已完成",
+      cancelled: "已取消",
+    };
+    return statusMap[status as keyof typeof statusMap] || status;
+  };
 
   const getStatusColor = (status: string) => {
-    const statusConfig = statusOptions.find((s) => s.id === status);
-    return statusConfig?.color || "gray";
+    const colorMap = {
+      pending: "#ff6b35",
+      paid: "#ffa502",
+      pending_shipment: "#f39c12",
+      shipped: "#3742fa",
+      delivered: "#2ed573",
+      cancelled: "#747d8c",
+    };
+    return colorMap[status as keyof typeof colorMap] || "#666";
   };
 
-  const getStatusName = (status: string) => {
-    const statusConfig = statusOptions.find((s) => s.id === status);
-    return statusConfig?.name || status;
+  const filterOrders = () => {
+    let filtered = orders;
+
+    // 按状态筛选
+    if (activeTab !== "all") {
+      filtered = filtered.filter((order) => order.status === activeTab);
+    }
+
+    // 按搜索文本筛选
+    if (searchText) {
+      filtered = filtered.filter(
+        (order) =>
+          order.orderNumber.includes(searchText) ||
+          order.items.some((item) =>
+            item.name.toLowerCase().includes(searchText.toLowerCase())
+          )
+      );
+    }
+
+    return filtered;
   };
 
-  const handleOrderAction = (orderId: string, action: string) => {
-    console.log(`订单 ${orderId} 执行操作: ${action}`);
-    // 这里应该调用相应的API
-    alert(`已执行操作: ${action}`);
+  const handleProductClick = (productId: string) => {
+    navigate(`/product/${productId}`);
   };
 
-  const handleBack = () => {
-    navigate(-1);
+  // 取消订单
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const response: any = await orderAPI.cancelOrder(orderId);
+      if (response.success) {
+        Toast.show("订单取消成功");
+        fetchOrders(); // 重新获取订单列表
+      } else {
+        Toast.show("取消订单失败");
+      }
+    } catch (error) {
+      console.error("取消订单失败:", error);
+      Toast.show("取消订单失败");
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">加载中...</p>
-        </div>
-      </div>
-    );
-  }
+  // 更新订单状态
+  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+    try {
+      const response: any = await orderAPI.updateOrderStatus(orderId, status);
+      if (response.success) {
+        Toast.show("订单状态更新成功");
+        fetchOrders(); // 重新获取订单列表
+      } else {
+        Toast.show("更新订单状态失败");
+      }
+    } catch (error) {
+      console.error("更新订单状态失败:", error);
+      Toast.show("更新订单状态失败");
+    }
+  };
+
+  const filteredOrders = filterOrders();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 头部 */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <button
-            onClick={handleBack}
-            className="mr-4 p-2 hover:bg-gray-100 rounded-full"
-          >
-            ←
-          </button>
-          <h1 className="text-lg font-semibold">订单管理</h1>
-        </div>
+    <div
+      style={{
+        backgroundColor: "#f5f5f5",
+        minHeight: "100vh",
+        paddingBottom: "60px",
+      }}
+    >
+      {/* 导航栏 */}
+      <NavBar onBack={() => navigate(-1)}>订单管理</NavBar>
+
+      {/* 搜索框 */}
+      <div style={{ padding: "12px 16px", backgroundColor: "white" }}>
+        <SearchBar
+          placeholder="搜索订单号或商品名称"
+          value={searchText}
+          onChange={setSearchText}
+          style={{
+            backgroundColor: "#f5f5f5",
+            borderRadius: "20px",
+          }}
+        />
       </div>
 
-      {/* 状态筛选 */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-md mx-auto px-4 py-4">
-          <div className="flex space-x-2 overflow-x-auto pb-2">
-            {statusOptions.map((status) => (
-              <button
-                key={status.id}
-                onClick={() => setSelectedStatus(status.id)}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  selectedStatus === status.id
-                    ? `bg-${status.color}-500 text-white`
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {status.name}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* 状态筛选标签 */}
+      <div style={{ backgroundColor: "white", paddingBottom: "8px" }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          style={{
+            "--content-padding": "0 16px",
+          }}
+        >
+          <Tabs.Tab title="全部" key="all" />
+          <Tabs.Tab title="待付款" key="pending" />
+          <Tabs.Tab title="待发货" key="pending_shipment" />
+          <Tabs.Tab title="已发货" key="shipped" />
+          <Tabs.Tab title="已完成" key="delivered" />
+        </Tabs>
       </div>
 
       {/* 订单列表 */}
-      <div className="max-w-md mx-auto p-4">
-        {filteredOrders.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">📦</div>
-            <p className="text-gray-500">暂无订单</p>
+      <div style={{ padding: "8px 16px" }}>
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "200px",
+            }}
+          >
+            <Loading />
           </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredOrders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-sm p-4">
-                {/* 订单头部 */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-500">
-                    订单号: {order.id}
+        ) : filteredOrders.length > 0 ? (
+          filteredOrders.map((order) => (
+            <Card
+              key={order._id}
+              style={{
+                marginBottom: "12px",
+                borderRadius: "8px",
+              }}
+            >
+              {/* 商店名称和状态 */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                  marginBottom: "12px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                    {order.shopName}
                   </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs text-white bg-${getStatusColor(
-                      order.status
-                    )}-500`}
+                  <Badge
+                    content="自营"
+                    style={{
+                      backgroundColor: "#ff6b35",
+                      marginLeft: "8px",
+                      fontSize: "10px",
+                    }}
+                  />
+                </div>
+                <Tag
+                  color={getStatusColor(order.status)}
+                  style={{ color: "white", fontSize: "12px" }}
+                >
+                  {getStatusText(order.status)}
+                </Tag>
+              </div>
+
+              {/* 商品信息 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  cursor: "pointer",
+                  marginBottom: "12px",
+                }}
+                onClick={() => handleProductClick(order.items[0].productId)}
+              >
+                <Image
+                  src={order.items[0].image}
+                  width={80}
+                  height={80}
+                  style={{
+                    borderRadius: "8px",
+                    marginRight: "12px",
+                    flexShrink: 0,
+                  }}
+                  fit="cover"
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      lineHeight: "1.4",
+                      marginBottom: "8px",
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      color: "#333",
+                    }}
                   >
-                    {getStatusName(order.status)}
-                  </span>
+                    {order.items[0].name}
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#999",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    规格：{order.items[0].spec}
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#ff6b35",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ¥{order.totalAmount}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        color: "#666",
+                      }}
+                    >
+                      x{order.items[0].quantity}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 底部操作区 */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingTop: "12px",
+                  borderTop: "1px solid #f0f0f0",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#999",
+                  }}
+                >
+                  {new Date(order.createdAt).toLocaleString("zh-CN", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
 
-                {/* 商品信息 */}
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🛍️</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">
-                      {order.productName}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      数量: {order.quantity}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      下单时间: {order.orderDate}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-red-500">¥{order.price}</p>
-                  </div>
-                </div>
-
-                {/* 操作按钮 */}
-                <div className="flex space-x-2">
+                <div style={{ display: "flex", gap: "8px" }}>
                   {order.status === "pending" && (
                     <>
-                      <button
-                        onClick={() => handleOrderAction(order.id, "pay")}
-                        className="flex-1 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
-                      >
-                        立即付款
-                      </button>
-                      <button
-                        onClick={() => handleOrderAction(order.id, "cancel")}
-                        className="flex-1 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600"
+                      <Button
+                        size="small"
+                        fill="outline"
+                        color="default"
+                        onClick={() => handleCancelOrder(order._id)}
                       >
                         取消订单
-                      </button>
+                      </Button>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() =>
+                          handleUpdateOrderStatus(order._id, "paid")
+                        }
+                      >
+                        立即付款
+                      </Button>
                     </>
                   )}
-                  {order.status === "delivered" && (
-                    <button
-                      onClick={() => handleOrderAction(order.id, "review")}
-                      className="flex-1 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600"
-                    >
-                      评价商品
-                    </button>
+
+                  {order.status === "pending_shipment" && (
+                    <>
+                      <Button size="small" fill="outline" color="default">
+                        催发货
+                      </Button>
+                      <Button size="small" color="primary">
+                        联系客服
+                      </Button>
+                    </>
                   )}
+
                   {order.status === "shipped" && (
-                    <button
-                      onClick={() => handleOrderAction(order.id, "track")}
-                      className="flex-1 py-2 bg-purple-500 text-white rounded-lg text-sm hover:bg-purple-600"
+                    <>
+                      <Button
+                        size="small"
+                        fill="outline"
+                        color="default"
+                        onClick={() => {
+                          Toast.show("物流查询功能开发中...");
+                        }}
+                      >
+                        查看物流
+                      </Button>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() =>
+                          handleUpdateOrderStatus(order._id, "delivered")
+                        }
+                      >
+                        确认收货
+                      </Button>
+                    </>
+                  )}
+
+                  {order.status === "delivered" && (
+                    <Button
+                      size="small"
+                      fill="outline"
+                      color="default"
+                      onClick={() => {
+                        Toast.show("再次购买功能开发中...");
+                      }}
                     >
-                      查看物流
-                    </button>
+                      再次购买
+                    </Button>
                   )}
                 </div>
               </div>
-            ))}
+            </Card>
+          ))
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "50vh",
+              padding: "20px",
+            }}
+          >
+            <Empty
+              image={
+                <UnorderedListOutline
+                  style={{ fontSize: "64px", color: "#ccc" }}
+                />
+              }
+              description="暂无订单"
+            />
+            <Button
+              color="primary"
+              onClick={() => navigate("/download")}
+              style={{ marginTop: "20px" }}
+            >
+              去购物
+            </Button>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default OrderManagement;
+}
