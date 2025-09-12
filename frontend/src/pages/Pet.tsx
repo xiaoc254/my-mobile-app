@@ -2,18 +2,93 @@ import petImage from '../image/1.png'
 import catImage from '../image/cat.jpg'
 import dogImage from '../image/dog.jpg'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+
+interface Pet {
+  id: string
+  name: string
+  type: string
+  avatar?: string
+}
 
 export default function Pet() {
   const navigate = useNavigate()
+  const [selectedPetId, setSelectedPetId] = useState<string>('buding')
+  const [taskCompletionStatus, setTaskCompletionStatus] = useState({
+    exercise: false,
+    feeding: false,
+    log: false,
+    temperature: false
+  })
 
   const handleAddPet = () => {
     navigate('/pet-type-select')
   }
-    const handleRizhi = () => {
+
+  const handleRizhi = () => {
     navigate('/pet-type-rizhi')
   }
-      const handleJiangKang = () => {
+
+  const handleJiangKang = () => {
     navigate('/pet-type-jiangkang')
+  }
+
+  // 处理任务完成 - 跳转到相应页面
+  const handleTaskComplete = (taskType: string) => {
+    // 保存当前任务类型到localStorage
+    localStorage.setItem('lastVisitedTask', taskType)
+    
+    // 根据任务类型跳转到相应页面
+    switch (taskType) {
+      case 'exercise':
+        // 跳转到运动计划页面
+        navigate('/exercise-plan', { state: { selectedPetId: selectedPetId || 'buding' } })
+        break
+      case 'feeding':
+        // 跳转到喂食计划页面
+        navigate('/feeding-plan', { state: { selectedPetId: selectedPetId || 'buding' } })
+        break
+      case 'log':
+        // 跳转到每日日志页面
+        navigate('/daily-log', { state: { selectedPetId: selectedPetId || 'buding' } })
+        break
+      case 'temperature':
+        // 跳转到体温记录页面
+        navigate('/temperature-record', { state: { selectedPetId: selectedPetId || 'buding' } })
+        break
+      default:
+        // 默认跳转到宠物详情页面
+        navigate('/pet-detail', { state: { selectedPetId: selectedPetId || 'buding' } })
+    }
+  }
+
+  // 处理已完成任务的删除
+  const handleTaskDelete = (taskType: string) => {
+    setTaskCompletionStatus(prev => ({
+      ...prev,
+      [taskType]: false
+    }))
+  }
+
+  // 处理宠物点击事件
+  const handlePetClick = (petId: string) => {
+    setSelectedPetId(petId)
+  }
+
+  // 获取宠物头像
+  const getPetAvatar = (pet: Pet) => {
+    if (pet.avatar) {
+      return pet.avatar
+    }
+    // 根据宠物类型返回默认头像
+    switch (pet.type) {
+      case 'cat':
+        return catImage
+      case 'dog':
+        return dogImage
+      default:
+        return catImage
+    }
   }
 
 
@@ -341,20 +416,30 @@ return (
                   运动计划
                 </span>
               </div>
-              <button
-
-              style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => taskCompletionStatus.exercise ? handleTaskDelete('exercise') : handleTaskComplete('exercise')}
+                style={{
+                  background: taskCompletionStatus.exercise ? '#dc3545' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}>
+                {taskCompletionStatus.exercise ? '删除' : '去完成'}
               </button>
             </div>
 
@@ -388,26 +473,35 @@ return (
                   喂食计划
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => taskCompletionStatus.feeding ? handleTaskDelete('feeding') : handleTaskComplete('feeding')}
+                style={{
+                  background: taskCompletionStatus.feeding ? '#dc3545' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}>
+                {taskCompletionStatus.feeding ? '删除' : '去完成'}
               </button>
             </div>
 
             {/* 每日日志 */}
-
-            <div
-            onClick={ handleJiangKang}
-            style={{
+            <div style={{
               background: '#fff',
               borderRadius: '10px',
               padding: '10px',
@@ -436,20 +530,30 @@ return (
                   每日日志
                 </span>
               </div>
-              <button
-              onClick={handleRizhi}
-              style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => taskCompletionStatus.log ? handleTaskDelete('log') : handleTaskComplete('log')}
+                style={{
+                  background: taskCompletionStatus.log ? '#dc3545' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}>
+                {taskCompletionStatus.log ? '删除' : '去完成'}
               </button>
             </div>
 
@@ -483,18 +587,30 @@ return (
                   体温记录
                 </span>
               </div>
-              <button style={{
-                background: '#FFBF6B',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '5px 10px',
-                color: '#fff',
-                fontSize: '11px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                去完成
+              <button 
+                onClick={() => taskCompletionStatus.temperature ? handleTaskDelete('temperature') : handleTaskComplete('temperature')}
+                style={{
+                  background: taskCompletionStatus.temperature ? '#dc3545' : '#FFBF6B',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '5px 10px',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}>
+                {taskCompletionStatus.temperature ? '删除' : '去完成'}
               </button>
             </div>
           </div>
