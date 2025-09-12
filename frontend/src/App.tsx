@@ -9,6 +9,7 @@ import {
 import { TabBar } from "antd-mobile";
 import { routes, tabs, getHideTabBarPages } from "./route/route";
 
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,7 +81,9 @@ function App() {
 export default function RouterWrapper() {
   return (
     <Router>
-      <App />
+      
+        <App />
+     
     </Router>
   );
 }
