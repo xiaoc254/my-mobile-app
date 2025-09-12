@@ -9,6 +9,7 @@ import {
 import { TabBar } from "antd-mobile";
 import { routes, tabs, getHideTabBarPages } from "./route/route";
 import { AuthProvider } from "./context/AuthContext";
+import { PetFormProvider } from "./context/PetFormContext";
 import AuthGuard from "./components/AuthGuard";
 
 function App() {
@@ -86,9 +87,11 @@ function App() {
 export default function RouterWrapper() {
   return (
     <AuthProvider>
-      <Router>
-        <App />
-      </Router>
+      <PetFormProvider>
+        <Router>
+          <App />
+        </Router>
+      </PetFormProvider>
     </AuthProvider>
   );
 }

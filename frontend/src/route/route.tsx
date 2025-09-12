@@ -16,6 +16,10 @@ import PetAgeWeight from "../pages/PetAgeWeight";
 import PetDetail from "../pages/PetDetail";
 import PetTypeRizhi from "../pages/PetTypeRizhi";
 import PetTypeJiangkang from "../pages/PetTypejiangkang";
+import ExercisePlan from "../pages/ExercisePlan";
+import FeedingPlan from "../pages/FeedingPlan";
+import DailyLog from "../pages/DailyLog";
+import TemperatureRecord from "../pages/TemperatureRecord";
 
 // 路由配置接口
 export interface RouteConfig {
@@ -69,6 +73,34 @@ export const routes: RouteConfig[] = [
     component: Profile,
     title: "我的",
     hideTabBar: false,
+    requireAuth: false,
+  },
+  {
+    path: "/exercise-plan",
+    component: ExercisePlan,
+    title: "运动计划",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/feeding-plan",
+    component: FeedingPlan,
+    title: "喂食计划",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/daily-log",
+    component: DailyLog,
+    title: "每日日志",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/temperature-record",
+    component: TemperatureRecord,
+    title: "体温记录",
+    hideTabBar: true,
     requireAuth: false,
   },
   {
