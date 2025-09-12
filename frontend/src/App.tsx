@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 import { TabBar } from "antd-mobile";
 import { routes, tabs, getHideTabBarPages } from "./route/route";
-
+import { AuthProvider } from "./context/AuthContext";
+import AuthGuard from "./components/AuthGuard";
 
 function App() {
   const navigate = useNavigate();
@@ -29,7 +30,11 @@ function App() {
           <Route
             key={route.path}
             path={route.path}
-            element={<route.component />}
+            element={
+              <AuthGuard requireAuth={route.requireAuth}>
+                <route.component />
+              </AuthGuard>
+            }
           />
         ))}
       </Routes>
@@ -80,10 +85,10 @@ function App() {
 
 export default function RouterWrapper() {
   return (
-    <Router>
-      
+    <AuthProvider>
+      <Router>
         <App />
-     
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }

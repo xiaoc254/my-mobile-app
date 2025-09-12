@@ -67,6 +67,7 @@ export default function Home() {
           </Button>
         </div>
       </Card>
+      <button onClick={() => navigate("/ai")}>聊天</button>
     </div>
   );
 }

@@ -7,7 +7,14 @@ export async function register(req, res) {
   try {
     const user = await User.create({ username, password });
     const token = signToken({ id: user._id, username: user.username });
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -24,7 +31,25 @@ export async function login(req, res) {
     if (!isMatch) return res.status(401).json({ message: "密码错误" });
 
     const token = signToken({ id: user._id, username: user.username });
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+// 获取当前用户信息
+export async function getMe(req, res) {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "用户不存在" });
+    res.json({ user });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

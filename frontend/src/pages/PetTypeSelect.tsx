@@ -9,6 +9,8 @@ export default function PetTypeSelect() {
 
   const handlePetTypeSelect = (petType: string) => {
     console.log('选择宠物类型:', petType)
+    
+
     // 这里可以跳转到下一步或处理选择逻辑
   }
 
@@ -41,7 +43,7 @@ export default function PetTypeSelect() {
           marginBottom: '12px'
         }}>
           {/* 返回按钮 */}
-          <div 
+          <div
             onClick={handleBack}
             style={{
               width: '24px',
@@ -143,7 +145,7 @@ export default function PetTypeSelect() {
             gap: '20px'
           }}>
             {/* 汪星人按钮 */}
-            <div 
+            <div
               onClick={() => handlePetTypeSelect('dog')}
               style={{
                 flex: '1',
@@ -185,7 +187,7 @@ export default function PetTypeSelect() {
             </div>
 
             {/* 喵星人按钮 */}
-            <div 
+            <div
               onClick={() => handlePetTypeSelect('cat')}
               style={{
                 flex: '1',
@@ -228,7 +230,7 @@ export default function PetTypeSelect() {
           </div>
 
           {/* 其它星人按钮 */}
-          <div 
+          <div
             onClick={() => handlePetTypeSelect('other')}
             style={{
               width: '100%',

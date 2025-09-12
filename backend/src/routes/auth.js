@@ -2,6 +2,7 @@ import express from "express";
 import {
   login,
   register,
+  getMe,
   getProfile,
   updateProfile,
   changePassword,
@@ -16,6 +17,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 // 需要认证的路由
+router.get("/me", authenticateToken, getMe);
 router.get("/profile", authenticateToken, getProfile);
 router.put("/profile", authenticateToken, updateProfile);
 router.put("/password", authenticateToken, changePassword);

@@ -25,4 +25,18 @@ api.interceptors.request.use(config => {
   return config;
 });
 
+// 响应拦截器 - 处理401错误
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token过期或无效，清除本地存储并跳转到登录页
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
