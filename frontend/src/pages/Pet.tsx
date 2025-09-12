@@ -2,88 +2,35 @@ import petImage from '../image/1.png'
 import catImage from '../image/cat.jpg'
 import dogImage from '../image/dog.jpg'
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-// @ts-ignore
-import { petAPI } from '../services/api'
+import { useState } from 'react'
 
 interface Pet {
   id: string
-  nickname: string
+  name: string
   type: string
-  gender: string
-  avatar: string | null
-  startDate: string
-  weight: number
-  createdAt: string
+  avatar?: string
 }
 
 export default function Pet() {
   const navigate = useNavigate()
-  const [pets, setPets] = useState<Pet[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
-  
-  // 任务完成状态管理
-  const [taskCompletionStatus, setTaskCompletionStatus] = useState<Record<string, boolean>>({
-    'exercise': false,
-    'feeding': false,
-    'log': false,
-    'temperature': false
+  const [selectedPetId, setSelectedPetId] = useState<string>('buding')
+  const [taskCompletionStatus, setTaskCompletionStatus] = useState({
+    exercise: false,
+    feeding: false,
+    log: false,
+    temperature: false
   })
-  
-  // 创建包含静态宠物的完整宠物列表
-  const getAllPets = () => {
-    const staticPets = [
-      { id: 'buding', nickname: '布丁', type: 'cat', avatar: catImage },
-      { id: 'xueqiu', nickname: '雪球', type: 'dog', avatar: dogImage }
-    ]
-    const dynamicPets = pets.filter(pet => pet.nickname !== '11')
-    return [...staticPets, ...dynamicPets]
-  }
-
-  // 获取宠物列表
-  const fetchPets = async () => {
-    try {
-      const response = await petAPI.getPets()
-      if (response.success) {
-        setPets(response.data)
-      }
-    } catch (error) {
-      console.error('获取宠物列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchPets()
-  }, [])
-
-  // 监听页面可见性变化，当从其他页面返回时刷新数据
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchPets()
-        // 检查是否有任务需要标记为已完成
-        const lastVisitedTask = localStorage.getItem('lastVisitedTask')
-        if (lastVisitedTask) {
-          setTaskCompletionStatus(prev => ({
-            ...prev,
-            [lastVisitedTask]: true
-          }))
-          localStorage.removeItem('lastVisitedTask')
-        }
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
 
   const handleAddPet = () => {
     navigate('/pet-type-select')
+  }
+
+  const handleRizhi = () => {
+    navigate('/pet-type-rizhi')
+  }
+
+  const handleJiangKang = () => {
+    navigate('/pet-type-jiangkang')
   }
 
   // 处理任务完成 - 跳转到相应页面
@@ -145,42 +92,7 @@ export default function Pet() {
   }
 
 
-  // 获取当前选中的宠物
-  const getSelectedPet = () => {
-    if (!selectedPetId) return null
-    return pets.find(pet => pet.id === selectedPetId)
-  }
-
-  // 获取选中宠物的头像
-  const getSelectedPetAvatar = () => {
-    if (!selectedPetId) return catImage
-    
-    // 处理静态宠物
-    if (selectedPetId === 'buding') return catImage
-    if (selectedPetId === 'xueqiu') return dogImage
-    
-    // 处理动态宠物
-    const selectedPet = pets.find(pet => pet.id === selectedPetId)
-    if (selectedPet) {
-      return getPetAvatar(selectedPet)
-    }
-    
-    return catImage
-  }
-
-  // 获取排序后的宠物列表（点击的宠物在第一位）
-  const getOrderedPets = () => {
-    const allPets = getAllPets()
-    if (!selectedPetId) return allPets
-    
-    const selectedPet = allPets.find(pet => pet.id === selectedPetId)
-    if (!selectedPet) return allPets
-    
-    const otherPets = allPets.filter(pet => pet.id !== selectedPetId)
-    return [selectedPet, ...otherPets]
-  }
-
-  return (
+return (
     <div style={{
       height: '100vh',
       width: '100vw',
@@ -200,9 +112,9 @@ export default function Pet() {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <img 
-          src={petImage} 
-          alt="猫咪爪子和手指互动" 
+        <img
+          src={petImage}
+          alt="猫咪爪子和手指互动"
           style={{
             width: '100%',
             height: '100%',
@@ -220,7 +132,7 @@ export default function Pet() {
         display: 'flex',
         justifyContent: 'center'
       }}>
-        <button 
+        <button
           onClick={handleAddPet}
           style={{
             width: '40%',
@@ -285,88 +197,99 @@ export default function Pet() {
             </h3>
           </div>
 
-                 {/* 宠物列表 */}
-                 <div style={{
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'space-between'
-                 }}>
-                   {/* 左侧宠物区域 */}
-                   <div style={{
-                     display: 'flex',
-                     gap: '12px',
-                     alignItems: 'center',
-                     flexWrap: 'wrap'
-                   }}>
-                     {/* 统一的宠物列表 */}
-                     {loading ? (
-                       <div style={{
-                         fontSize: '10px',
-                         color: '#666',
-                         padding: '10px'
-                       }}>
-                         加载中...
-                       </div>
-                     ) : (
-                       getOrderedPets().map((pet) => (
-                         <div 
-                           key={pet.id} 
-                           onClick={() => handlePetClick(pet.id)}
-                           style={{
-                             display: 'flex',
-                             flexDirection: 'column',
-                             alignItems: 'center',
-                             gap: '4px',
-                             cursor: 'pointer',
-                             transition: 'transform 0.2s ease'
-                           }}
-                           onMouseDown={(e) => {
-                             e.currentTarget.style.transform = 'scale(0.95)'
-                           }}
-                           onMouseUp={(e) => {
-                             e.currentTarget.style.transform = 'scale(1)'
-                           }}
-                           onMouseLeave={(e) => {
-                             e.currentTarget.style.transform = 'scale(1)'
-                           }}
-                         >
-                           <div style={{
-                             width: '50px',
-                             height: '50px',
-                             borderRadius: '50%',
-                             background: '#fff',
-                             display: 'flex',
-                             alignItems: 'center',
-                             justifyContent: 'center',
-                             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                             border: '2px solid #FFBF6B',
-                             overflow: 'hidden'
-                           }}>
-                             <img
-                               src={pet.avatar || (pet.type === 'cat' ? catImage : dogImage)}
-                               alt={pet.nickname}
-                               style={{
-                                 width: '100%',
-                                 height: '100%',
-                                 objectFit: 'cover',
-                                 borderRadius: '50%'
-                               }}
-                             />
-                           </div>
-                           <span style={{
-                             fontSize: '10px',
-                             fontWeight: '500',
-                             color: '#000'
-                           }}>
-                             {pet.nickname}
-                           </span>
-                         </div>
-                       ))
-                     )}
-                   </div>
-            
+          {/* 宠物列表 */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            {/* 左侧宠物区域 */}
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              alignItems: 'center'
+            }}>
+              {/* 布丁 - 猫咪 */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: '2px solid #FFBF6B',
+                  overflow: 'hidden'
+                }}>
+                  <img
+                    src={catImage}
+                    alt="布丁"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                  />
+                </div>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: '500',
+                  color: '#000'
+                }}>
+                  布丁
+                </span>
+              </div>
+
+              {/* 雪球 - 狗狗 */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: '2px solid #FFBF6B',
+                  overflow: 'hidden'
+                }}>
+                  <img
+                    src={dogImage}
+                    alt="雪球"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                  />
+                </div>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: '500',
+                  color: '#000'
+                }}>
+                  雪球
+                </span>
+              </div>
+            </div>
+
             {/* 右侧添加宠物按钮 */}
-            <div 
+            <div
               onClick={handleAddPet}
               style={{
                 display: 'flex',
@@ -376,8 +299,8 @@ export default function Pet() {
                 cursor: 'pointer'
               }}>
               <div style={{
-                width: '50px',
-                height: '50px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
                 borderLeft: '2px solid #fff',
                 display: 'flex',
@@ -442,9 +365,9 @@ export default function Pet() {
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
               overflow: 'hidden'
             }}>
-              <img 
-                src={getSelectedPetAvatar()} 
-                alt={selectedPetId === 'buding' ? '布丁' : selectedPetId === 'xueqiu' ? '雪球' : getSelectedPet()?.nickname || "默认头像"} 
+              <img
+                src={catImage}
+                alt="猫咪头像"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -693,6 +616,7 @@ export default function Pet() {
           </div>
         </div>
       </div>
-    </div>
-  )
+</div>
+  );
+
 }

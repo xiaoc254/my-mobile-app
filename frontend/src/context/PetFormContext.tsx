@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 // 宠物数据接口
 export interface PetFormData {
-  type: string;           // 宠物类型: dog, cat, other
-  gender: string;         // 宠物性别: male, female, neutered_male, neutered_female
-  nickname: string;       // 宠物昵称
-  avatar: string | null;  // 宠物头像
-  startDate: string;      // 开始日期
-  weight: string;         // 体重
+  type: string; // 宠物类型: dog, cat, other
+  gender: string; // 宠物性别: male, female, neutered_male, neutered_female
+  nickname: string; // 宠物昵称
+  avatar: string | null; // 宠物头像
+  startDate: string; // 开始日期
+  weight: string; // 体重
 }
 
 // 上下文接口
@@ -23,21 +23,23 @@ const PetFormContext = createContext<PetFormContextType | undefined>(undefined);
 
 // 初始数据
 const initialPetData: PetFormData = {
-  type: '',
-  gender: '',
-  nickname: '',
+  type: "",
+  gender: "",
+  nickname: "",
   avatar: null,
-  startDate: '',
-  weight: ''
+  startDate: "",
+  weight: "",
 };
 
 // 提供者组件
-export const PetFormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PetFormProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [petData, setPetData] = useState<PetFormData>(initialPetData);
 
   // 更新宠物数据
   const updatePetData = (data: Partial<PetFormData>) => {
-    setPetData(prev => ({ ...prev, ...data }));
+    setPetData((prev) => ({ ...prev, ...data }));
   };
 
   // 重置宠物数据
@@ -61,13 +63,11 @@ export const PetFormProvider: React.FC<{ children: React.ReactNode }> = ({ child
     petData,
     updatePetData,
     resetPetData,
-    isFormComplete
+    isFormComplete,
   };
 
   return (
-    <PetFormContext.Provider value={value}>
-      {children}
-    </PetFormContext.Provider>
+    <PetFormContext.Provider value={value}>{children}</PetFormContext.Provider>
   );
 };
 
@@ -75,7 +75,7 @@ export const PetFormProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const usePetForm = () => {
   const context = useContext(PetFormContext);
   if (context === undefined) {
-    throw new Error('usePetForm must be used within a PetFormProvider');
+    throw new Error("usePetForm must be used within a PetFormProvider");
   }
   return context;
 };
