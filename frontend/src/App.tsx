@@ -22,7 +22,18 @@ function App() {
 
   // 不显示TabBar的页面
   const hideTabBarPages = getHideTabBarPages();
-  const shouldShowTabBar = !hideTabBarPages.includes(location.pathname);
+
+  // 检查当前路径是否需要隐藏TabBar，支持动态路由
+  const shouldShowTabBar = !hideTabBarPages.some((hidePath) => {
+    if (hidePath.includes(":")) {
+      // 处理动态路由，如 /product/:id
+      const pathPattern = hidePath.replace(/:\w+/g, "[^/]+");
+      const regex = new RegExp(`^${pathPattern}$`);
+      return regex.test(location.pathname);
+    }
+    // 处理静态路由
+    return location.pathname === hidePath;
+  });
 
   return (
     <div>

@@ -47,6 +47,8 @@ export default function Product() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -257,8 +259,18 @@ export default function Product() {
   const currentSpec = product?.specs[selectedSpec];
 
   const handleAddToCart = async () => {
-    if (!product || !currentSpec) return;
+    if (!product || !currentSpec || addingToCart) return;
 
+    // 检查库存
+    if (quantity > currentSpec.stock) {
+      Toast.show({
+        content: `库存不足，当前库存：${currentSpec.stock}`,
+        position: "center",
+      });
+      return;
+    }
+
+    setAddingToCart(true);
     try {
       const response: any = await cartAPI.addToCart({
         productId: product.id,
@@ -267,7 +279,35 @@ export default function Product() {
       });
 
       if (response.success) {
-        Toast.show("已添加到购物车");
+        Toast.show({
+          content: "✅ 已添加到购物车",
+          position: "center",
+          duration: 2000,
+        });
+
+        // 可选：自动显示查看购物车的操作
+        setTimeout(() => {
+          Toast.show({
+            content: (
+              <div style={{ textAlign: "center" }}>
+                <div>商品已加入购物车</div>
+                <div
+                  style={{
+                    marginTop: "8px",
+                    color: "#1677ff",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                  onClick={() => navigate("/cart")}
+                >
+                  查看购物车
+                </div>
+              </div>
+            ),
+            position: "center",
+            duration: 3000,
+          });
+        }, 500);
       } else {
         Toast.show(response.message || "添加到购物车失败");
       }
@@ -276,24 +316,72 @@ export default function Product() {
 
       // 如果是认证错误，提示用户登录
       if (error.response?.status === 401) {
-        Toast.show("请先登录");
-        navigate("/login");
+        Toast.show({
+          content: "请先登录",
+          position: "center",
+          afterClose: () => {
+            navigate("/login");
+          },
+        });
       } else {
         Toast.show(error.response?.data?.message || "添加到购物车失败");
       }
+    } finally {
+      setAddingToCart(false);
     }
   };
 
-  const handleBuyNow = () => {
-    if (!product || !currentSpec) return;
+  const handleBuyNow = async () => {
+    if (!product || !currentSpec || buyingNow) return;
 
-    // 立即购买逻辑
-    console.log("立即购买:", {
-      productId: product.id,
-      specId: currentSpec.id,
-      quantity,
-    });
-    Toast.show("正在跳转到支付页面...");
+    // 检查库存
+    if (quantity > currentSpec.stock) {
+      Toast.show({
+        content: `库存不足，当前库存：${currentSpec.stock}`,
+        position: "center",
+      });
+      return;
+    }
+
+    setBuyingNow(true);
+    try {
+      // 创建立即购买订单的商品信息
+      const orderItems = [
+        {
+          productId: product.id,
+          productName: product.name,
+          productImage: product.images[0],
+          productBrand: product.brand,
+          price: currentSpec.price,
+          originalPrice: currentSpec.originalPrice,
+          quantity,
+          spec: currentSpec.name,
+          selected: true,
+        },
+      ];
+
+      // 将订单信息存储到 sessionStorage 中，用于订单确认页面
+      sessionStorage.setItem("buyNowItems", JSON.stringify(orderItems));
+
+      Toast.show({
+        content: "🚀 正在跳转到订单确认页面...",
+        position: "center",
+        afterClose: () => {
+          // 跳转到订单管理页面（创建订单）
+          navigate("/order-management", {
+            state: {
+              type: "buyNow",
+              items: orderItems,
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.error("立即购买错误:", error);
+      Toast.show("操作失败，请重试");
+    } finally {
+      setBuyingNow(false);
+    }
   };
 
   if (loading) {
@@ -412,7 +500,7 @@ export default function Product() {
               alignItems: "center",
               fontSize: "12px",
               color: "#666",
-              marginBottom: "16px",
+              marginBottom: "8px",
             }}
           >
             <Rate
@@ -425,6 +513,26 @@ export default function Product() {
               {product.rating}分 | {product.reviewCount}条评价 | 已售
               {product.sales}+
             </span>
+          </div>
+
+          <div
+            style={{
+              fontSize: "14px",
+              color: currentSpec && currentSpec.stock < 10 ? "#ff4757" : "#666",
+              marginBottom: "16px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            📦 库存：{currentSpec?.stock || 0}件
+            {currentSpec && currentSpec.stock < 10 && (
+              <Tag
+                color="#ff4757"
+                style={{ marginLeft: "8px", fontSize: "12px" }}
+              >
+                库存紧张
+              </Tag>
+            )}
           </div>
         </div>
       </div>
@@ -516,18 +624,41 @@ export default function Product() {
           display: "flex",
           gap: "12px",
           zIndex: 1000,
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.08)",
         }}
       >
         <Button
           color="primary"
           fill="outline"
-          style={{ flex: 1 }}
+          style={{
+            flex: 1,
+            height: "48px",
+            fontSize: "16px",
+            fontWeight: "500",
+            border: "2px solid #ff4757",
+            color: "#ff4757",
+          }}
           onClick={handleAddToCart}
+          loading={addingToCart}
+          disabled={addingToCart || buyingNow}
         >
-          加入购物车
+          🛒 加入购物车
         </Button>
-        <Button color="primary" style={{ flex: 1 }} onClick={handleBuyNow}>
-          立即购买
+        <Button
+          color="primary"
+          style={{
+            flex: 1,
+            height: "48px",
+            fontSize: "16px",
+            fontWeight: "600",
+            background: "linear-gradient(135deg, #ff4757, #ff6b7a)",
+            border: "none",
+          }}
+          onClick={handleBuyNow}
+          loading={buyingNow}
+          disabled={addingToCart || buyingNow}
+        >
+          ⚡ 立即购买
         </Button>
       </div>
     </div>

@@ -3,44 +3,149 @@ import { signToken } from "../services/jwtService.js";
 
 // 注册
 export async function register(req, res) {
-  const { username, password } = req.body;
+  const { username, password, mobile, email, loginType = 'username' } = req.body;
   try {
-    const user = await User.create({ username, password });
-    const token = signToken({ id: user._id, username: user.username });
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email
+    // 检查用户名是否已存在
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "用户名已存在"
+      });
+    }
+
+    // 如果提供了手机号，检查是否已存在
+    if (mobile) {
+      const existingMobile = await User.findOne({ mobile });
+      if (existingMobile) {
+        return res.status(400).json({
+          success: false,
+          message: "手机号已被注册"
+        });
       }
+    }
+
+    // 如果提供了邮箱，检查是否已存在
+    if (email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "邮箱已被注册"
+        });
+      }
+    }
+
+    const userData = {
+      username,
+      password,
+      loginType,
+      lastLoginAt: new Date()
+    };
+
+    if (mobile) userData.mobile = mobile;
+    if (email) userData.email = email;
+
+    const user = await User.create(userData);
+    const token = signToken({ id: user._id, username: user.username });
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          mobile: user.mobile,
+          email: user.email,
+          nickname: user.nickname,
+          avatar: user.avatar,
+          loginType: user.loginType,
+          isVerified: user.isVerified,
+          lastLoginAt: user.lastLoginAt
+        }
+      },
+      message: "注册成功"
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({
+      success: false,
+      message: err.message
+    });
   }
 }
 
 // 登录
 export async function login(req, res) {
-  const { username, password } = req.body;
+  const { username, password, loginField } = req.body;
   try {
-    const user = await User.findOne({ username });
-    if (!user) return res.status(401).json({ message: "账号不存在" });
+    let user;
+
+    // 支持多种登录方式：用户名、手机号、邮箱
+    if (loginField && loginField !== 'username') {
+      if (loginField === 'mobile') {
+        user = await User.findOne({ mobile: username });
+      } else if (loginField === 'email') {
+        user = await User.findOne({ email: username });
+      }
+    } else {
+      // 智能匹配：先尝试用户名，再尝试手机号，最后尝试邮箱
+      user = await User.findOne({ username });
+
+      if (!user && /^1[3-9]\d{9}$/.test(username)) {
+        // 如果输入的是手机号格式
+        user = await User.findOne({ mobile: username });
+      }
+
+      if (!user && /@/.test(username)) {
+        // 如果输入的是邮箱格式
+        user = await User.findOne({ email: username });
+      }
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "账号不存在"
+      });
+    }
 
     const isMatch = await user.matchPassword(password);
-    if (!isMatch) return res.status(401).json({ message: "密码错误" });
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "密码错误"
+      });
+    }
+
+    // 更新最后登录时间
+    user.lastLoginAt = new Date();
+    await user.save();
 
     const token = signToken({ id: user._id, username: user.username });
     res.json({
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email
-      }
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          mobile: user.mobile,
+          email: user.email,
+          nickname: user.nickname,
+          avatar: user.avatar,
+          loginType: user.loginType,
+          isVerified: user.isVerified,
+          lastLoginAt: user.lastLoginAt
+        }
+      },
+      message: "登录成功"
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 }
 

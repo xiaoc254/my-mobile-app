@@ -14,6 +14,10 @@ const orderItemSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  productBrand: {
+    type: String,
+    default: ''
+  },
   quantity: {
     type: Number,
     required: true,
@@ -22,6 +26,10 @@ const orderItemSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
+    min: 0
+  },
+  originalPrice: {
+    type: Number,
     min: 0
   },
   spec: {
@@ -92,6 +100,10 @@ const orderSchema = new mongoose.Schema({
   remark: {
     type: String,
     default: ''
+  },
+  shopName: {
+    type: String,
+    default: '宠物商城'
   },
   createdAt: {
     type: Date,

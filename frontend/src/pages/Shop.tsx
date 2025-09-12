@@ -10,9 +10,10 @@ import {
   List,
   Loading,
   Badge,
+  Button,
 } from "antd-mobile";
-import { MoreOutline } from "antd-mobile-icons";
-import { productAPI, IMAGE_BASE_URL } from "../services/apiz";
+import { ShopbagOutline } from "antd-mobile-icons";
+import { productAPI, cartAPI, IMAGE_BASE_URL } from "../services/apiz";
 
 interface Product {
   id: string;
@@ -34,6 +35,7 @@ export default function Shop() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   // 从后端获取商品数据
   const fetchProducts = async (search?: string, category?: string) => {
@@ -74,9 +76,23 @@ export default function Shop() {
     }
   };
 
+  // 获取购物车数量
+  const fetchCartItemCount = async () => {
+    try {
+      const response: any = await cartAPI.getCart();
+      if (response.success && response.data) {
+        setCartItemCount(response.data.totalItems || 0);
+      }
+    } catch (error) {
+      // 忽略购物车获取错误（用户可能未登录）
+      setCartItemCount(0);
+    }
+  };
+
   // 初始化数据加载
   useEffect(() => {
     fetchProducts();
+    fetchCartItemCount();
   }, []);
 
   // 搜索时重新加载数据
@@ -102,6 +118,37 @@ export default function Shop() {
 
   const onRefresh = async () => {
     await fetchProducts(searchText);
+    await fetchCartItemCount();
+  };
+
+  // 快速添加到购物车
+  const quickAddToCart = async (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation(); // 阻止事件冒泡
+
+    try {
+      const response: any = await cartAPI.addToCart({
+        productId: product.id,
+        quantity: 1,
+        spec: "默认规格",
+      });
+
+      if (response.success) {
+        Toast.show("已添加到购物车");
+        await fetchCartItemCount(); // 更新购物车数量
+      } else {
+        Toast.show(response.message || "添加到购物车失败");
+      }
+    } catch (error: any) {
+      console.error("添加到购物车错误:", error);
+
+      // 如果是认证错误，提示用户登录
+      if (error.response?.status === 401) {
+        Toast.show("请先登录");
+        navigate("/login");
+      } else {
+        Toast.show(error.response?.data?.message || "添加到购物车失败");
+      }
+    }
   };
 
   const loadMore = async () => {
@@ -185,8 +232,11 @@ export default function Shop() {
             }}
             onClick={() => navigate("/cart")}
           >
-            <Badge content="🛒" style={{ "--right": "-5px", "--top": "-5px" }}>
-              <MoreOutline fontSize={20} />
+            <Badge
+              content={cartItemCount > 0 ? cartItemCount : undefined}
+              style={{ "--right": "-5px", "--top": "-5px" }}
+            >
+              <ShopbagOutline fontSize={20} color="#c9a742" />
             </Badge>
           </div>
         </div>
@@ -333,10 +383,29 @@ export default function Shop() {
                         alignItems: "center",
                         fontSize: "12px",
                         color: "#666",
+                        marginBottom: "8px",
                       }}
                     >
                       <span>⭐ {product.rating}</span>
                       <span>已售{product.sales}+</span>
+                    </div>
+
+                    {/* 购物车按钮 */}
+                    <div
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
+                      <Button
+                        size="mini"
+                        color="primary"
+                        style={{
+                          fontSize: "12px",
+                          padding: "4px 12px",
+                          height: "28px",
+                        }}
+                        onClick={(e) => quickAddToCart(e, product)}
+                      >
+                        加入购物车
+                      </Button>
                     </div>
                   </div>
                 </div>

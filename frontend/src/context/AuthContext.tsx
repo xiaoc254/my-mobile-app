@@ -5,7 +5,13 @@ import api from "../services/api";
 interface User {
   id: string;
   username: string;
+  mobile?: string;
   email?: string;
+  nickname?: string;
+  avatar?: string;
+  loginType?: string;
+  isVerified?: boolean;
+  lastLoginAt?: string;
 }
 
 interface AuthContextType {
@@ -77,12 +83,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string) => {
     try {
       const response = await api.post("/auth/login", { username, password });
-      const { token: newToken, user: userData } = response.data;
 
-      setToken(newToken);
-      setUser(userData);
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("user", JSON.stringify(userData));
+      if (response.data.success) {
+        const { token: newToken, user: userData } = response.data.data;
+
+        setToken(newToken);
+        setUser(userData);
+        localStorage.setItem("token", newToken);
+        localStorage.setItem("user", JSON.stringify(userData));
+      } else {
+        throw new Error(response.data.message || "登录失败");
+      }
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "登录失败");
     }
@@ -92,12 +103,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (username: string, password: string) => {
     try {
       const response = await api.post("/auth/register", { username, password });
-      const { token: newToken, user: userData } = response.data;
 
-      setToken(newToken);
-      setUser(userData);
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("user", JSON.stringify(userData));
+      if (response.data.success) {
+        const { token: newToken, user: userData } = response.data.data;
+
+        setToken(newToken);
+        setUser(userData);
+        localStorage.setItem("token", newToken);
+        localStorage.setItem("user", JSON.stringify(userData));
+      } else {
+        throw new Error(response.data.message || "注册失败");
+      }
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "注册失败");
     }

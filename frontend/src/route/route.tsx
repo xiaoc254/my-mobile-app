@@ -23,6 +23,13 @@ import DailyLog from "../pages/DailyLog";
 import TemperatureRecord from "../pages/TemperatureRecord";
 import FeedingComplete from "../pages/FeedingComplete";
 import TestPage from "../pages/TestPage";
+import Welcome from "../pages/Welcome";
+import AuthCallback from "../pages/AuthCallback";
+import SMSLogin from "../pages/SMSLogin";
+import SMSTest from "../pages/SMSTest";
+import AuthDebug from "../pages/AuthDebug";
+import WXCallback from "../pages/WXCallback";
+import SimpleLogin from "../components/SimpleLogin";
 
 // 路由配置接口
 export interface RouteConfig {
@@ -45,6 +52,55 @@ export interface TabConfig {
 export const routes: RouteConfig[] = [
   {
     path: "/",
+    component: Welcome,
+    title: "欢迎",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/auth-callback",
+    component: AuthCallback,
+    title: "授权回调",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/sms-login",
+    component: SMSLogin,
+    title: "短信登录",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/sms-test",
+    component: SMSTest,
+    title: "短信测试",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/auth-debug",
+    component: AuthDebug,
+    title: "授权调试",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/wx-callback",
+    component: WXCallback,
+    title: "微信回调",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/weibo-callback",
+    component: AuthCallback,
+    title: "微博登录回调",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/home",
     component: Home,
     title: "首页",
     hideTabBar: false,
@@ -135,6 +191,13 @@ export const routes: RouteConfig[] = [
     requireAuth: false,
   },
   {
+    path: "/simple-login",
+    component: SimpleLogin,
+    title: "快速登录",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
     path: "/cart",
     component: Cart,
     title: "购物车",
@@ -216,8 +279,8 @@ export const routes: RouteConfig[] = [
 // 标签栏配置数组
 export const tabs: TabConfig[] = [
   {
-    key: "/",
-    path: "/",
+    key: "/home",
+    path: "/home",
     icon: "🏠",
     title: "首页",
   },

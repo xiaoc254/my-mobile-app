@@ -12,7 +12,7 @@ import {
   Empty,
   Dialog,
 } from "antd-mobile";
-import { DeleteOutline } from "antd-mobile-icons";
+// import { DeleteOutline } from "antd-mobile-icons";
 import { cartAPI, IMAGE_BASE_URL } from "../services/apiz";
 
 interface CartItem {
@@ -185,9 +185,34 @@ export default function Cart() {
       return;
     }
 
-    // 导航到结算页面（暂时显示提示）
-    Toast.show("正在跳转到结算页面...");
-    // navigate('/checkout');
+    // 获取选中的商品
+    const selectedItems = cart.items.filter((item) => item.selected);
+
+    // 转换为结算页面需要的格式
+    const checkoutItems = selectedItems.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      productImage: item.productImage,
+      productBrand: item.productBrand,
+      price: item.price,
+      originalPrice: item.originalPrice,
+      quantity: item.quantity,
+      spec: item.spec,
+      selected: true,
+    }));
+
+    Toast.show({
+      content: "正在跳转到结算页面...",
+      afterClose: () => {
+        // 跳转到订单管理页面的结算模式
+        navigate("/order-management", {
+          state: {
+            type: "cartCheckout",
+            items: checkoutItems,
+          },
+        });
+      },
+    });
   };
 
   if (loading) {
