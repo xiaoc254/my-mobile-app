@@ -94,20 +94,20 @@ export default function Pet() {
     // 根据任务类型跳转到相应页面
     switch (taskType) {
       case 'exercise':
-        // 跳转到运动计划页面（可以创建新页面）
-        console.log('跳转到运动计划页面')
+        // 跳转到运动计划页面
+        navigate('/exercise-plan', { state: { selectedPetId: selectedPetId || 'buding' } })
         break
       case 'feeding':
         // 跳转到喂食计划页面
         navigate('/feeding-plan', { state: { selectedPetId: selectedPetId || 'buding' } })
         break
       case 'log':
-        // 跳转到日志页面（可以创建新页面）
-        console.log('跳转到每日日志页面')
+        // 跳转到每日日志页面
+        navigate('/daily-log', { state: { selectedPetId: selectedPetId || 'buding' } })
         break
       case 'temperature':
-        // 跳转到体温记录页面（可以创建新页面）
-        console.log('跳转到体温记录页面')
+        // 跳转到体温记录页面
+        navigate('/temperature-record', { state: { selectedPetId: selectedPetId || 'buding' } })
         break
       default:
         // 默认跳转到宠物详情页面

@@ -11,6 +11,9 @@ import PetAgeWeight from "../pages/PetAgeWeight";
 import PetDetail from "../pages/PetDetail";
 import FeedingPlan from "../pages/FeedingPlan";
 import FeedingComplete from "../pages/FeedingComplete";
+import ExercisePlan from "../pages/ExercisePlan";
+import DailyLog from "../pages/DailyLog";
+import TemperatureRecord from "../pages/TemperatureRecord";
 import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 
@@ -94,6 +97,27 @@ export const routes: RouteConfig[] = [
           path: "/feeding-complete",
           component: FeedingComplete,
           title: "完成喂食",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/exercise-plan",
+          component: ExercisePlan,
+          title: "运动计划",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/daily-log",
+          component: DailyLog,
+          title: "每日日志",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/temperature-record",
+          component: TemperatureRecord,
+          title: "体温记录",
           hideTabBar: true,
           requireAuth: false,
         },

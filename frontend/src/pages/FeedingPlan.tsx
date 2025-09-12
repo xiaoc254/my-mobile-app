@@ -129,6 +129,11 @@ export default function FeedingPlan() {
     setIsReminderOn(!isReminderOn)
   }
 
+  // 处理返回
+  const handleBack = () => {
+    navigate('/pet')
+  }
+
   // 跳转到完成喂食页面 - 直接跳转，无状态变化
   const handleCompleteFeeding = (schedule: FeedingSchedule) => {
     console.log('=== 点击去完成按钮 ===')
@@ -197,6 +202,47 @@ export default function FeedingPlan() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         flexShrink: 0
       }}>
+        {/* 返回按钮 */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <button 
+            onClick={handleBack}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '20px',
+              cursor: 'pointer',
+              color: '#333',
+              padding: '8px',
+              borderRadius: '50%',
+              transition: 'background-color 0.2s ease'
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.backgroundColor = '#f0f0f0'
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+          >
+            ←
+          </button>
+          <h1 style={{
+            margin: 0,
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#333',
+            marginLeft: '8px'
+          }}>
+            喂食计划
+          </h1>
+        </div>
+
         {/* 宠物信息 */}
         <div style={{
           display: 'flex',
