@@ -163,6 +163,31 @@ export default function PetDetail() {
 
   const handleTaskAction = (taskId: string, action: string) => {
     console.log(`Task ${taskId} - Action: ${action}`)
+    
+    // 根据任务类型和操作跳转到相应页面
+    if (action === 'complete') {
+      switch (taskId) {
+        case '2': // 喂食计划
+          navigate('/feeding-plan', { state: { selectedPetId: currentPetId } })
+          break
+        case '1': // 运动计划
+          // 可以跳转到运动计划页面
+          console.log('跳转到运动计划页面')
+          break
+        case '3': // 每日日志
+          // 可以跳转到日志页面
+          console.log('跳转到每日日志页面')
+          break
+        case '4': // 体温记录
+          // 可以跳转到体温记录页面
+          console.log('跳转到体温记录页面')
+          break
+        default:
+          console.log('未知任务类型')
+      }
+    } else if (action === 'view' && taskId === '2') {
+      navigate('/feeding-plan', { state: { selectedPetId: currentPetId } })
+    }
   }
 
   const inProgressTasks = tasks.filter(task => task.status === 'in_progress')
@@ -446,6 +471,32 @@ export default function PetDetail() {
                     gap: '8px',
                     flexWrap: 'wrap'
                   }}>
+                    <button
+                      onClick={() => handleTaskAction(task.id, 'complete')}
+                      style={{
+                        background: 'linear-gradient(135deg, #CBA43F 0%, #D4AF37 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '10px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 4px rgba(203, 164, 63, 0.3)',
+                        transition: 'transform 0.2s ease'
+                      }}
+                      onMouseDown={(e) => {
+                        e.currentTarget.style.transform = 'scale(0.95)'
+                      }}
+                      onMouseUp={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      去完成
+                    </button>
                     <button
                       onClick={() => handleTaskAction(task.id, 'view')}
                       style={{

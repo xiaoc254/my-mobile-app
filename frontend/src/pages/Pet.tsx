@@ -86,18 +86,40 @@ export default function Pet() {
     navigate('/pet-type-select')
   }
 
-  // 处理任务完成
+  // 处理任务完成 - 跳转到相应页面
   const handleTaskComplete = (taskType: string) => {
     // 保存当前任务类型到localStorage
     localStorage.setItem('lastVisitedTask', taskType)
-    navigate('/pet-detail', { state: { selectedPetId: selectedPetId || 'buding' } })
+    
+    // 根据任务类型跳转到相应页面
+    switch (taskType) {
+      case 'exercise':
+        // 跳转到运动计划页面（可以创建新页面）
+        console.log('跳转到运动计划页面')
+        break
+      case 'feeding':
+        // 跳转到喂食计划页面
+        navigate('/feeding-plan', { state: { selectedPetId: selectedPetId || 'buding' } })
+        break
+      case 'log':
+        // 跳转到日志页面（可以创建新页面）
+        console.log('跳转到每日日志页面')
+        break
+      case 'temperature':
+        // 跳转到体温记录页面（可以创建新页面）
+        console.log('跳转到体温记录页面')
+        break
+      default:
+        // 默认跳转到宠物详情页面
+        navigate('/pet-detail', { state: { selectedPetId: selectedPetId || 'buding' } })
+    }
   }
 
-  // 处理其他任务完成（不跳转）
-  const handleOtherTaskComplete = (taskType: string) => {
+  // 处理已完成任务的删除
+  const handleTaskDelete = (taskType: string) => {
     setTaskCompletionStatus(prev => ({
       ...prev,
-      [taskType]: true
+      [taskType]: false
     }))
   }
 
@@ -472,9 +494,9 @@ export default function Pet() {
                 </span>
               </div>
               <button 
-                onClick={() => handleTaskComplete('exercise')}
+                onClick={() => taskCompletionStatus.exercise ? handleTaskDelete('exercise') : handleTaskComplete('exercise')}
                 style={{
-                  background: taskCompletionStatus.exercise ? '#28a745' : '#FFBF6B',
+                  background: taskCompletionStatus.exercise ? '#dc3545' : '#FFBF6B',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '5px 10px',
@@ -482,9 +504,19 @@ export default function Pet() {
                   fontSize: '11px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
                 }}>
-                {taskCompletionStatus.exercise ? '已完成' : '去完成'}
+                {taskCompletionStatus.exercise ? '删除' : '去完成'}
               </button>
             </div>
 
@@ -519,9 +551,9 @@ export default function Pet() {
                 </span>
               </div>
               <button 
-                onClick={() => handleOtherTaskComplete('feeding')}
+                onClick={() => taskCompletionStatus.feeding ? handleTaskDelete('feeding') : handleTaskComplete('feeding')}
                 style={{
-                  background: taskCompletionStatus.feeding ? '#28a745' : '#FFBF6B',
+                  background: taskCompletionStatus.feeding ? '#dc3545' : '#FFBF6B',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '5px 10px',
@@ -529,9 +561,19 @@ export default function Pet() {
                   fontSize: '11px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
                 }}>
-                {taskCompletionStatus.feeding ? '已完成' : '去完成'}
+                {taskCompletionStatus.feeding ? '删除' : '去完成'}
               </button>
             </div>
 
@@ -566,9 +608,9 @@ export default function Pet() {
                 </span>
               </div>
               <button 
-                onClick={() => handleOtherTaskComplete('log')}
+                onClick={() => taskCompletionStatus.log ? handleTaskDelete('log') : handleTaskComplete('log')}
                 style={{
-                  background: taskCompletionStatus.log ? '#28a745' : '#FFBF6B',
+                  background: taskCompletionStatus.log ? '#dc3545' : '#FFBF6B',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '5px 10px',
@@ -576,9 +618,19 @@ export default function Pet() {
                   fontSize: '11px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
                 }}>
-                {taskCompletionStatus.log ? '已完成' : '去完成'}
+                {taskCompletionStatus.log ? '删除' : '去完成'}
               </button>
             </div>
 
@@ -613,9 +665,9 @@ export default function Pet() {
                 </span>
               </div>
               <button 
-                onClick={() => handleOtherTaskComplete('temperature')}
+                onClick={() => taskCompletionStatus.temperature ? handleTaskDelete('temperature') : handleTaskComplete('temperature')}
                 style={{
-                  background: taskCompletionStatus.temperature ? '#28a745' : '#FFBF6B',
+                  background: taskCompletionStatus.temperature ? '#dc3545' : '#FFBF6B',
                   border: 'none',
                   borderRadius: '12px',
                   padding: '5px 10px',
@@ -623,9 +675,19 @@ export default function Pet() {
                   fontSize: '11px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
                 }}>
-                {taskCompletionStatus.temperature ? '已完成' : '去完成'}
+                {taskCompletionStatus.temperature ? '删除' : '去完成'}
               </button>
             </div>
           </div>

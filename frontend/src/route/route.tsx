@@ -9,6 +9,8 @@ import PetGenderSelect from "../pages/PetGenderSelect";
 import PetAvatarNickname from "../pages/PetAvatarNickname";
 import PetAgeWeight from "../pages/PetAgeWeight";
 import PetDetail from "../pages/PetDetail";
+import FeedingPlan from "../pages/FeedingPlan";
+import FeedingComplete from "../pages/FeedingComplete";
 import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 
@@ -78,6 +80,20 @@ export const routes: RouteConfig[] = [
           path: "/pet-detail",
           component: PetDetail,
           title: "宠物详情",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/feeding-plan",
+          component: FeedingPlan,
+          title: "喂食计划",
+          hideTabBar: true,
+          requireAuth: false,
+        },
+        {
+          path: "/feeding-complete",
+          component: FeedingComplete,
+          title: "完成喂食",
           hideTabBar: true,
           requireAuth: false,
         },
