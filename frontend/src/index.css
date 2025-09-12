@@ -12,6 +12,10 @@ html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* 全局字体自适应：更适合手机的比例 */
 html {

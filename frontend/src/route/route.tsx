@@ -20,6 +20,8 @@ import ExercisePlan from "../pages/ExercisePlan";
 import FeedingPlan from "../pages/FeedingPlan";
 import DailyLog from "../pages/DailyLog";
 import TemperatureRecord from "../pages/TemperatureRecord";
+import FeedingComplete from "../pages/FeedingComplete";
+import TestPage from "../pages/TestPage";
 
 // 路由配置接口
 export interface RouteConfig {
@@ -45,6 +47,20 @@ export const routes: RouteConfig[] = [
     component: Home,
     title: "首页",
     hideTabBar: false,
+    requireAuth: false,
+  },
+  {
+    path:'/feeding-complete',
+    component: FeedingComplete,
+    title: "喂食完成",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/test-page",
+    component: TestPage,
+    title: "测试页面",
+    hideTabBar: true,
     requireAuth: false,
   },
   {

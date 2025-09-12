@@ -40,12 +40,9 @@ export default function PetAgeWeight() {
         weight: weight.trim(),
       });
 
-      // 准备提交的数据（使用更新后的数据）
+      // 准备提交的数据
       const petDataToSubmit = {
-        type: petData.type,
-        gender: petData.gender,
-        nickname: petData.nickname,
-        avatar: petData.avatar,
+        ...petData,
         startDate: startDate.trim(),
         weight: weightNum,
       };

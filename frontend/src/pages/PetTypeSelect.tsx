@@ -11,11 +11,8 @@ export default function PetTypeSelect() {
 
   const handlePetTypeSelect = (petType: string) => {
     console.log("选择宠物类型:", petType);
-
     // 保存选择的宠物类型
     updatePetData({ type: petType });
-
-    // 跳转到下一步
     navigate("/pet-gender-select");
   };
 
@@ -86,8 +83,7 @@ export default function PetTypeSelect() {
           style={{
             width: "100%",
             height: "12px",
-            background: "#fff",
-            border: "1px solid #007AFF",
+            background: "#E5E5E7",
             borderRadius: "6px",
             display: "flex",
             overflow: "hidden",
