@@ -5,8 +5,8 @@ import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Pet from "../pages/Pet";
 import PetTypeSelect from "../pages/PetTypeSelect";
-import PetTypeRizhi from "../pages/PetTyperizhi";
-import PetTypeQx from "../pages/PetTypeQx"; 
+import PetTypeRizhi from "../pages/PetTypeRizhi";
+import PetTypeQx from "../pages/PetTypeQx";
     import PetTypeJiangKang from "../pages/PetTypejiangkang";
 // 路由配置接口
 export interface RouteConfig {

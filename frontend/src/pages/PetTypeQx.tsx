@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import  { useState } from 'react'
 
 interface EmotionRecord {
   date: string;
@@ -50,10 +50,10 @@ export default function EmotionDiary() {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '1000px', margin: '0 auto' }}>
       <h1 style={{ color: '#333', textAlign: 'center', marginBottom: '30px' }}>情绪日记</h1>
-      
+
       <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
         <h2 style={{ color: '#333', borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>雪球情绪分析表</h2>
-        
+
         <div style={{ margin: '20px 0' }}>
           <h3 style={{ marginBottom: '15px' }}>选择今日情绪状态：</h3>
           <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
@@ -78,7 +78,7 @@ export default function EmotionDiary() {
               </div>
             ))}
           </div>
-          
+
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
               记录日期：
@@ -91,7 +91,7 @@ export default function EmotionDiary() {
               placeholder="请输入日期"
             />
           </div>
-          
+
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
               备注信息：
@@ -103,7 +103,7 @@ export default function EmotionDiary() {
               placeholder="记录详细情况..."
             />
           </div>
-          
+
           <button
             onClick={addEmotionRecord}
             disabled={!selectedEmotion}
@@ -121,7 +121,7 @@ export default function EmotionDiary() {
             保存情绪记录
           </button>
         </div>
-        
+
         <div style={{ marginTop: '30px' }}>
           <h3 style={{ marginBottom: '15px' }}>历史情绪记录：</h3>
           <div style={{ border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
@@ -162,7 +162,7 @@ export default function EmotionDiary() {
           </div>
         </div>
       </div>
-      
+
       <div style={{
         marginTop: '30px',
         padding: '15px',

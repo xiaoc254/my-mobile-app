@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface Interaction {
@@ -35,8 +35,8 @@ export default function PetInteractionLogger() {
   };
 
   return (
-    <div style={{ 
-      padding: '20px', 
+    <div style={{
+      padding: '20px',
       fontFamily: 'Arial, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -44,37 +44,37 @@ export default function PetInteractionLogger() {
       minHeight: '100vh'
     }}>
       {/* 居中标题 */}
-      <h1 style={{ 
-        textAlign: 'center', 
+      <h1 style={{
+        textAlign: 'center',
         width: '100%',
         marginBottom: '30px'
       }}>
         互动行为日志
       </h1>
-      
+
       {/* 表格容器 */}
-      <div style={{ 
-        width: '100%', 
+      <div style={{
+        width: '100%',
         maxWidth: '800px',
         marginBottom: '30px'
       }}>
-        <table style={{ 
-          width: '100%', 
-          borderCollapse: 'collapse', 
-          marginBottom: '30px' 
+        <table style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          marginBottom: '30px'
         }}>
           <thead>
             <tr style={{ backgroundColor: '#f5f5f5' }}>
-              <th style={{ 
-                padding: '12px', 
-                border: '1px solid #ddd', 
+              <th style={{
+                padding: '12px',
+                border: '1px solid #ddd',
                 textAlign: 'center' // 改为居中
               }}>
                 记录日期
               </th>
-              <th style={{ 
-                padding: '12px', 
-                border: '1px solid #ddd', 
+              <th style={{
+                padding: '12px',
+                border: '1px solid #ddd',
                 textAlign: 'center' // 改为居中
               }}>
                 宠物互动行为描述
@@ -84,15 +84,15 @@ export default function PetInteractionLogger() {
           <tbody>
             {interactions.map((interaction, index) => (
               <tr key={index}>
-                <td style={{ 
-                  padding: '12px', 
+                <td style={{
+                  padding: '12px',
                   border: '1px solid #ddd',
                   textAlign: 'center' // 改为居中
                 }}>
                   {interaction.date}
                 </td>
-                <td style={{ 
-                  padding: '12px', 
+                <td style={{
+                  padding: '12px',
                   border: '1px solid #ddd',
                   textAlign: 'center' // 改为居中
                 }}>
@@ -101,8 +101,8 @@ export default function PetInteractionLogger() {
               </tr>
             ))}
             <tr>
-              <td style={{ 
-                padding: '12px', 
+              <td style={{
+                padding: '12px',
                 border: '1px solid #ddd',
                 textAlign: 'center' // 改为居中
               }}>
@@ -111,16 +111,16 @@ export default function PetInteractionLogger() {
                   placeholder="请输入日期"
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
-                  style={{ 
-                    width: '90%', 
-                    padding: '8px', 
+                  style={{
+                    width: '90%',
+                    padding: '8px',
                     boxSizing: 'border-box',
                     textAlign: 'center' // 输入框文字居中
                   }}
                 />
               </td>
-              <td style={{ 
-                padding: '12px', 
+              <td style={{
+                padding: '12px',
                 border: '1px solid #ddd',
                 textAlign: 'center' // 改为居中
               }}>
@@ -129,9 +129,9 @@ export default function PetInteractionLogger() {
                   placeholder="添加宠物行为"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  style={{ 
-                    width: '90%', 
-                    padding: '8px', 
+                  style={{
+                    width: '90%',
+                    padding: '8px',
                     boxSizing: 'border-box',
                     textAlign: 'center' // 输入框文字居中
                   }}
@@ -142,13 +142,13 @@ export default function PetInteractionLogger() {
         </table>
 
         {/* 按钮容器 - 居中显示 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
           gap: '20px',
           marginBottom: '30px'
         }}>
-          <button 
+          <button
             onClick={addInteraction}
             style={{
               padding: '10px 20px',
@@ -161,8 +161,8 @@ export default function PetInteractionLogger() {
           >
             确认添加
           </button>
-          
-          <button 
+
+          <button
             onClick={PetTyperQx}
             style={{
               padding: '10px 20px',

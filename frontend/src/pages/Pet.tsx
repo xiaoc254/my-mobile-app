@@ -15,7 +15,7 @@ export default function Pet() {
       const handleJiangKang = () => {
     navigate('/pet-type-jiangkang')
   }
-  
+
 
 return (
     <div style={{
@@ -37,9 +37,9 @@ return (
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <img 
-          src={petImage} 
-          alt="猫咪爪子和手指互动" 
+        <img
+          src={petImage}
+          alt="猫咪爪子和手指互动"
           style={{
             width: '100%',
             height: '100%',
@@ -57,7 +57,7 @@ return (
         display: 'flex',
         justifyContent: 'center'
       }}>
-        <button 
+        <button
           onClick={handleAddPet}
           style={{
             width: '40%',
@@ -153,9 +153,9 @@ return (
                   border: '2px solid #FFBF6B',
                   overflow: 'hidden'
                 }}>
-                  <img 
-                    src={catImage} 
-                    alt="布丁" 
+                  <img
+                    src={catImage}
+                    alt="布丁"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -192,9 +192,9 @@ return (
                   border: '2px solid #FFBF6B',
                   overflow: 'hidden'
                 }}>
-                  <img 
-                    src={dogImage} 
-                    alt="雪球" 
+                  <img
+                    src={dogImage}
+                    alt="雪球"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -212,9 +212,9 @@ return (
                 </span>
               </div>
             </div>
-            
+
             {/* 右侧添加宠物按钮 */}
-            <div 
+            <div
               onClick={handleAddPet}
               style={{
                 display: 'flex',
@@ -290,9 +290,9 @@ return (
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
               overflow: 'hidden'
             }}>
-              <img 
-                src={catImage} 
-                alt="猫咪头像" 
+              <img
+                src={catImage}
+                alt="猫咪头像"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -342,7 +342,7 @@ return (
                 </span>
               </div>
               <button
-              
+
               style={{
                 background: '#FFBF6B',
                 border: 'none',
@@ -404,8 +404,8 @@ return (
             </div>
 
             {/* 每日日志 */}
-            
-            <div 
+
+            <div
             onClick={ handleJiangKang}
             style={{
               background: '#fff',
@@ -436,7 +436,7 @@ return (
                   每日日志
                 </span>
               </div>
-              <button 
+              <button
               onClick={handleRizhi}
               style={{
                 background: '#FFBF6B',
@@ -502,5 +502,5 @@ return (
       </div>
 </div>
   );
-  
+
 }
