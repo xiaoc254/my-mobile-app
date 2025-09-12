@@ -41,7 +41,9 @@ export default function Login() {
       </div>
 
       <div style={{ marginBottom: "16px" }}>
-        <div style={{ marginBottom: "8px", color: "#666" }}>用户名</div>
+        <div style={{ marginBottom: "8px", color: "#666", fontSize: "16px" }}>
+          用户名
+        </div>
         <Input
           placeholder="请输入用户名"
           value={username}
@@ -49,7 +51,9 @@ export default function Login() {
         />
       </div>
       <div style={{ marginBottom: "16px" }}>
-        <div style={{ marginBottom: "8px", color: "#666" }}>密码</div>
+        <div style={{ marginBottom: "8px", color: "#666", fontSize: "16px" }}>
+          密码
+        </div>
         <Input
           type="password"
           placeholder="请输入密码"
@@ -62,11 +66,7 @@ export default function Login() {
         <Button color="primary" block onClick={handleLogin}>
           登录
         </Button>
-                <Button
-          block
-          style={{ marginTop: "10px" }}
-          onClick={handleRegister}
-        >
+        <Button block style={{ marginTop: "10px" }} onClick={handleRegister}>
           注册新账户
         </Button>
       </div>
