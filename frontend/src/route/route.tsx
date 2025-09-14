@@ -30,6 +30,8 @@ import CatRecipe from "../pages/CatRecipe";
 import HealthMonitor from "../pages/HealthMonitor";
 import VoiceAnalysis from "../pages/VoiceAnalysis";
 import VoiceAnalysisResult from "../pages/VoiceAnalysisResult";
+import VisualBehaviorAnalysis from "../pages/VisualBehaviorAnalysis";
+import VisualAnalysisResult from "../pages/VisualAnalysisResult";
 import AuthCallback from "../pages/AuthCallback";
 import SMSLogin from "../pages/SMSLogin";
 import SMSTest from "../pages/SMSTest";
@@ -311,6 +313,20 @@ export const routes: RouteConfig[] = [
     path: "/voice-analysis-result",
     component: VoiceAnalysisResult,
     title: "声音分析结果",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/visual-behavior-analysis",
+    component: VisualBehaviorAnalysis,
+    title: "视觉行为分析",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/visual-analysis-result",
+    component: VisualAnalysisResult,
+    title: "视觉分析结果",
     hideTabBar: true,
     requireAuth: false,
   },

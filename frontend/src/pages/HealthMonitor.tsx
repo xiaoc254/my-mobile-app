@@ -10,10 +10,7 @@ export default function HealthMonitor() {
   };
 
   const handleVisualAnalysis = () => {
-    Toast.show({
-      content: "视觉行为分析功能开发中，敬请期待！",
-      position: "center",
-    });
+    navigate("/visual-behavior-analysis");
   };
 
   return (
