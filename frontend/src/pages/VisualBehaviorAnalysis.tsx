@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavBar, Button, Toast } from "antd-mobile";
-import dogImg from "../image/dog.jpg";
 
 export default function VisualBehaviorAnalysis() {
   const navigate = useNavigate();
@@ -18,18 +17,133 @@ export default function VisualBehaviorAnalysis() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const recordingStartTime = useRef<number>(0);
 
+  // 检查设备和浏览器兼容性
+  const checkCameraCompatibility = () => {
+    // 检查是否支持getUserMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return {
+        supported: false,
+        reason: "浏览器不支持媒体设备访问",
+        suggestion: "请更新到最新版本的浏览器",
+      };
+    }
+
+    // 检查是否为HTTPS或localhost
+    const isSecureContext =
+      window.isSecureContext ||
+      location.protocol === "https:" ||
+      location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1";
+
+    // 获取更详细的环境信息
+    const currentUrl = location.href;
+    const isLocalNetwork = location.hostname.match(/^192\.168\.|^172\.|^10\./);
+
+    if (!isSecureContext) {
+      let reason = "需要HTTPS环境才能访问摄像头";
+      let suggestion = "请在HTTPS环境下使用此功能";
+
+      if (isLocalNetwork) {
+        reason = "局域网IP需要HTTPS才能访问摄像头";
+        suggestion = `请使用以下方式访问：
+1. 使用localhost:5173 (如果是本地开发)
+2. 配置HTTPS证书
+3. 使用ngrok等工具提供HTTPS访问`;
+      } else if (currentUrl.includes(":")) {
+        reason = "开发服务器需要HTTPS才能访问摄像头";
+        suggestion = "请使用localhost或配置HTTPS证书";
+      }
+
+      return {
+        supported: false,
+        reason,
+        suggestion,
+      };
+    }
+
+    return { supported: true };
+  };
+
+  // 请求摄像头和麦克风权限
+  const requestMediaPermissions = async () => {
+    try {
+      // 移动端优化的媒体配置
+      const constraints = {
+        video: {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          facingMode: "environment", // 后置摄像头
+          frameRate: { ideal: 30, max: 60 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      };
+
+      console.log("🎥 开始请求摄像头和麦克风权限...");
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      return { success: true, stream };
+    } catch (error: any) {
+      console.error("媒体权限请求失败:", error);
+
+      let errorMessage = "无法访问摄像头";
+      let suggestion = "请检查浏览器权限设置";
+
+      if (error.name === "NotAllowedError") {
+        errorMessage = "摄像头权限被拒绝";
+        suggestion = "请在浏览器设置中允许摄像头和麦克风访问";
+      } else if (error.name === "NotFoundError") {
+        errorMessage = "未找到摄像头设备";
+        suggestion = "请检查设备是否有摄像头";
+      } else if (error.name === "NotSupportedError") {
+        errorMessage = "浏览器不支持此功能";
+        suggestion = "请使用支持的浏览器版本";
+      } else if (error.name === "NotReadableError") {
+        errorMessage = "摄像头被其他应用占用";
+        suggestion = "请关闭其他使用摄像头的应用";
+      }
+
+      return { success: false, error: errorMessage, suggestion };
+    }
+  };
+
   // 开始录制视频
   const startRecording = async () => {
-    try {
-      // 请求摄像头权限
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "environment", // 后置摄像头
-        },
-        audio: true,
+    // 首先检查兼容性
+    const compatibility = checkCameraCompatibility();
+    if (!compatibility.supported) {
+      Toast.show({
+        content: `❌ ${compatibility.reason}`,
+        position: "center",
+        duration: 4000,
       });
+      console.error("兼容性检查失败:", compatibility);
+      return;
+    }
+
+    // 显示准备中的提示
+    Toast.show({
+      content: "🎥 正在请求摄像头权限...",
+      position: "center",
+      duration: 2000,
+    });
+
+    try {
+      // 请求媒体权限
+      const permissionResult = await requestMediaPermissions();
+
+      if (!permissionResult.success) {
+        throw new Error(
+          `${permissionResult.error}: ${permissionResult.suggestion}`
+        );
+      }
+
+      const stream = permissionResult.stream!;
+      console.log("✅ 成功获取媒体流");
 
       streamRef.current = stream;
 
@@ -78,13 +192,28 @@ export default function VisualBehaviorAnalysis() {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
 
-      Toast.show({ content: "📹 开始录制宠物视频...", position: "center" });
-    } catch (error) {
-      console.error("无法访问摄像头:", error);
       Toast.show({
-        content: "❌ 无法访问摄像头，请检查权限设置",
+        content: "📹 视频录制已启动",
         position: "center",
-        duration: 3000,
+        duration: 2000,
+      });
+
+      console.log("🎥 录制成功启动");
+    } catch (error: any) {
+      console.error("录制失败:", error);
+
+      let errorMessage = "❌ 无法访问摄像头，请检查权限设置";
+
+      if (error.message.includes("权限被拒绝")) {
+        errorMessage = "🔐 摄像头权限被拒绝";
+      } else if (error.message.includes("HTTPS")) {
+        errorMessage = "🔒 需要HTTPS环境才能录制视频";
+      }
+
+      Toast.show({
+        content: errorMessage,
+        position: "center",
+        duration: 4000,
       });
     }
   };
@@ -499,6 +628,61 @@ export default function VisualBehaviorAnalysis() {
             <br />• 请确保光线充足，录制时长5-30秒为佳
           </div>
         </div>
+
+        {/* 移动端权限帮助 */}
+        {!isRecording && !hasRecorded && (
+          <div
+            style={{
+              backgroundColor: "#fff3cd",
+              borderRadius: "12px",
+              padding: "15px",
+              marginTop: "15px",
+              border: "1px solid #ffeaa7",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                color: "#d68910",
+                marginBottom: "8px",
+              }}
+            >
+              📱 移动端使用提示
+            </div>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "#8e5a00",
+                lineHeight: "1.5",
+                textAlign: "left",
+              }}
+            >
+              <strong>如果无法访问摄像头，请检查：</strong>
+              <br />• <strong>浏览器权限</strong>
+              ：点击地址栏左侧的锁形图标，允许摄像头访问
+              <br />• <strong>系统权限</strong>
+              ：在手机设置-应用权限中允许浏览器使用摄像头
+              <br />• <strong>HTTPS环境</strong>
+              ：现代浏览器要求在安全环境下才能访问摄像头
+              <br />• <strong>Chrome</strong>：地址栏 → 站点设置 → 摄像头 → 允许
+              <br />• <strong>Safari</strong>：设置 → Safari → 摄像头 → 允许
+              <br />
+              <br />
+              <span
+                onClick={() => navigate("/mobile-media-test")}
+                style={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  color: "#d68910",
+                }}
+              >
+                🔧 点击进入权限检测工具 →
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

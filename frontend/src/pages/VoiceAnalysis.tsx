@@ -12,6 +12,7 @@ export default function VoiceAnalysis() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRecordingRef = useRef<boolean>(false); // 添加ref来跟踪录制状态
@@ -64,15 +65,169 @@ export default function VoiceAnalysis() {
     return data;
   };
 
+  // 检查设备和浏览器兼容性
+  const checkMicrophoneCompatibility = () => {
+    // 检查是否支持getUserMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return {
+        supported: false,
+        reason: "浏览器不支持媒体设备访问",
+        suggestion: "请更新到最新版本的浏览器",
+      };
+    }
+
+    // 检查是否为HTTPS或localhost
+    const isSecureContext =
+      window.isSecureContext ||
+      location.protocol === "https:" ||
+      location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1";
+
+    // 获取更详细的环境信息
+    const currentUrl = location.href;
+    const isLocalNetwork = location.hostname.match(/^192\.168\.|^172\.|^10\./);
+
+    if (!isSecureContext) {
+      let reason = "需要HTTPS环境才能访问麦克风";
+      let suggestion = "请在HTTPS环境下使用此功能";
+
+      if (isLocalNetwork) {
+        reason = "局域网IP需要HTTPS才能访问麦克风";
+        suggestion = `请使用以下方式访问：
+1. 使用localhost:5173 (如果是本地开发)
+2. 配置HTTPS证书
+3. 使用ngrok等工具提供HTTPS访问`;
+      } else if (currentUrl.includes(":")) {
+        reason = "开发服务器需要HTTPS才能访问麦克风";
+        suggestion = "请使用localhost或配置HTTPS证书";
+      }
+
+      return {
+        supported: false,
+        reason,
+        suggestion,
+      };
+    }
+
+    return { supported: true };
+  };
+
+  // 移动端专用的权限请求
+  const requestMicrophonePermissionMobile = async () => {
+    try {
+      // 对于移动端，先尝试简单的音频配置
+      const constraints = {
+        audio: {
+          // 移动端优化配置
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          // 降低采样率以提高兼容性
+          sampleRate: 44100,
+          channelCount: 1,
+        },
+      };
+
+      console.log("🎤 开始请求麦克风权限...");
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      return { success: true, stream };
+    } catch (error: any) {
+      console.error("移动端麦克风权限请求失败:", error);
+
+      let errorMessage = "无法访问麦克风";
+      let suggestion = "请检查浏览器权限设置";
+
+      if (error.name === "NotAllowedError") {
+        errorMessage = "麦克风权限被拒绝";
+        suggestion = "请在浏览器设置中允许麦克风访问";
+      } else if (error.name === "NotFoundError") {
+        errorMessage = "未找到麦克风设备";
+        suggestion = "请检查设备是否连接了麦克风";
+      } else if (error.name === "NotSupportedError") {
+        errorMessage = "浏览器不支持此功能";
+        suggestion = "请使用支持的浏览器版本";
+      } else if (error.name === "NotReadableError") {
+        errorMessage = "麦克风被其他应用占用";
+        suggestion = "请关闭其他使用麦克风的应用";
+      }
+
+      return { success: false, error: errorMessage, suggestion };
+    }
+  };
+
+  // 初始化音频上下文（兼容iOS Safari）
+  const initializeAudioContext = async () => {
+    try {
+      const AudioContextClass =
+        window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error("AudioContext not supported");
+      }
+
+      const audioContext = new AudioContextClass();
+
+      // iOS Safari需要在用户交互后恢复AudioContext
+      if (audioContext.state === "suspended") {
+        console.log("🎵 恢复AudioContext状态...");
+        await audioContext.resume();
+      }
+
+      return audioContext;
+    } catch (error) {
+      console.error("AudioContext初始化失败:", error);
+      throw error;
+    }
+  };
+
   // 开始录制
   const startRecording = async () => {
     setHasRecorded(false); // 重置录制状态
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // 首先检查兼容性
+    const compatibility = checkMicrophoneCompatibility();
+    if (!compatibility.supported) {
+      Toast.show({
+        content: `❌ ${compatibility.reason}`,
+        position: "center",
+        duration: 5000,
+      });
 
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      // 显示详细的解决方案
+      setTimeout(() => {
+        Toast.show({
+          content: `💡 ${compatibility.suggestion}`,
+          position: "center",
+          duration: 8000,
+        });
+      }, 1000);
+      console.error("兼容性检查失败:", compatibility);
+      startSimulation();
+      return;
+    }
+
+    // 显示准备中的提示
+    Toast.show({
+      content: "🎤 正在请求麦克风权限...",
+      position: "center",
+      duration: 2000,
+    });
+
+    try {
+      // 请求麦克风权限
+      const permissionResult = await requestMicrophonePermissionMobile();
+
+      if (!permissionResult.success) {
+        throw new Error(
+          `${permissionResult.error}: ${permissionResult.suggestion}`
+        );
+      }
+
+      const stream = permissionResult.stream!;
+      console.log("✅ 成功获取音频流");
+
+      // 初始化音频上下文
+      const audioContext = await initializeAudioContext();
       const analyser = audioContext.createAnalyser();
       const source = audioContext.createMediaStreamSource(stream);
 
@@ -84,10 +239,15 @@ export default function VoiceAnalysis() {
 
       source.connect(analyser);
 
+      // 保存引用
       audioContextRef.current = audioContext;
       analyserRef.current = analyser;
+      streamRef.current = stream;
 
-      const mediaRecorder = new MediaRecorder(stream);
+      // 创建MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm;codecs=opus", // 使用更兼容的编码格式
+      });
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.start();
@@ -115,14 +275,30 @@ export default function VoiceAnalysis() {
       // 开始实时分析音频
       analyzeAudio();
 
-      Toast.show({ content: "🎤 真实麦克风录制已启动", position: "center" });
-    } catch (error) {
-      console.error("录制失败:", error);
       Toast.show({
-        content: "🔧 无法访问麦克风，使用模拟声波模式",
+        content: "🎤 真实麦克风录制已启动",
+        position: "center",
+        duration: 2000,
+      });
+
+      console.log("🎵 录制成功启动，音频上下文状态:", audioContext.state);
+    } catch (error: any) {
+      console.error("录制失败:", error);
+
+      let errorMessage = "🔧 无法访问麦克风，使用模拟声波模式";
+
+      if (error.message.includes("权限被拒绝")) {
+        errorMessage = "🔐 麦克风权限被拒绝，使用模拟模式";
+      } else if (error.message.includes("HTTPS")) {
+        errorMessage = "🔒 需要HTTPS环境，使用模拟模式";
+      }
+
+      Toast.show({
+        content: errorMessage,
         position: "center",
         duration: 3000,
       });
+
       // 如果无法获取麦克风，使用模拟数据
       startSimulation();
     }
@@ -320,24 +496,59 @@ export default function VoiceAnalysis() {
 
     // 不自动显示分析结果
 
+    // 停止MediaRecorder
     if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (error) {
+        console.error("停止MediaRecorder时出错:", error);
+      }
+      mediaRecorderRef.current = null;
     }
 
+    // 停止音频流（释放麦克风）
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+          console.log("🎤 已停止音频轨道:", track.label || track.kind);
+        } catch (error) {
+          console.error("停止音频轨道时出错:", error);
+        }
+      });
+      streamRef.current = null;
+    }
+
+    // 关闭AudioContext
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      try {
+        audioContextRef.current
+          .close()
+          .then(() => {
+            console.log("🎵 AudioContext已关闭");
+          })
+          .catch((error) => {
+            console.error("关闭AudioContext时出错:", error);
+          });
+      } catch (error) {
+        console.error("同步关闭AudioContext时出错:", error);
+      }
+      audioContextRef.current = null;
     }
 
+    // 清除分析器引用
+    analyserRef.current = null;
+
+    // 清除动画帧
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
 
     // 清除模拟定时器
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
+      simulationIntervalRef.current = null;
     }
 
     Toast.show({ content: "声音收集完成", position: "center" });
@@ -717,6 +928,112 @@ export default function VoiceAnalysis() {
               : "开始声音收集"}
           </Button>
         </div>
+
+        {/* 环境检查和权限帮助 */}
+        {!isRecording &&
+          !hasRecorded &&
+          (() => {
+            const compatibility = checkMicrophoneCompatibility();
+            const isLocalNetwork = location.hostname.match(
+              /^192\.168\.|^172\.|^10\./
+            );
+
+            return (
+              <div
+                style={{
+                  position: "fixed",
+                  bottom: "200px",
+                  left: "20px",
+                  right: "20px",
+                  backgroundColor: compatibility.supported
+                    ? "rgba(255, 243, 205, 0.95)"
+                    : "rgba(255, 235, 238, 0.95)",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  border: compatibility.supported
+                    ? "1px solid rgba(255, 234, 167, 0.8)"
+                    : "1px solid rgba(255, 205, 210, 0.8)",
+                  backdropFilter: "blur(10px)",
+                  maxHeight: "140px",
+                  overflow: "auto",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    color: compatibility.supported ? "#d68910" : "#d32f2f",
+                    marginBottom: "6px",
+                    textAlign: "center",
+                  }}
+                >
+                  {compatibility.supported ? "📱 使用提示" : "⚠️ 环境问题"}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: compatibility.supported ? "#8e5a00" : "#c62828",
+                    lineHeight: "1.4",
+                    textAlign: "left",
+                  }}
+                >
+                  {compatibility.supported ? (
+                    <>
+                      点击"开始声音收集"时请允许麦克风权限
+                      <br />• Chrome: 地址栏锁形图标 → 允许
+                    </>
+                  ) : (
+                    <>
+                      <strong>检测到非安全环境</strong>
+                      <br />
+                      当前: {location.protocol}//{location.host}
+                      <br />
+                      {isLocalNetwork && (
+                        <>需要HTTPS或localhost才能访问麦克风</>
+                      )}
+                    </>
+                  )}
+                  <br />
+                  <div
+                    style={{ display: "flex", gap: "5px", marginTop: "6px" }}
+                  >
+                    {!compatibility.supported ? (
+                      <span
+                        onClick={() => navigate("/dev-environment-guide")}
+                        style={{
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          color: "#d32f2f",
+                          fontSize: "10px",
+                          padding: "2px 6px",
+                          backgroundColor: "rgba(255,255,255,0.8)",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        🛠️ 解决方案 →
+                      </span>
+                    ) : null}
+                    <span
+                      onClick={() => navigate("/mobile-media-test")}
+                      style={{
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        color: compatibility.supported ? "#d68910" : "#d32f2f",
+                        fontSize: "10px",
+                        padding: "2px 6px",
+                        backgroundColor: "rgba(255,255,255,0.8)",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      🔧 权限测试 →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
         {/* 底部提示文字 */}
         <div

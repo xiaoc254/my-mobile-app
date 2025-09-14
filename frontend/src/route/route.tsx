@@ -32,6 +32,8 @@ import VoiceAnalysis from "../pages/VoiceAnalysis";
 import VoiceAnalysisResult from "../pages/VoiceAnalysisResult";
 import VisualBehaviorAnalysis from "../pages/VisualBehaviorAnalysis";
 import VisualAnalysisResult from "../pages/VisualAnalysisResult";
+import MobileMediaTest from "../pages/MobileMediaTest";
+import DevEnvironmentGuide from "../pages/DevEnvironmentGuide";
 import AuthCallback from "../pages/AuthCallback";
 import SMSLogin from "../pages/SMSLogin";
 import SMSTest from "../pages/SMSTest";
@@ -327,6 +329,20 @@ export const routes: RouteConfig[] = [
     path: "/visual-analysis-result",
     component: VisualAnalysisResult,
     title: "视觉分析结果",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/mobile-media-test",
+    component: MobileMediaTest,
+    title: "移动端媒体权限测试",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/dev-environment-guide",
+    component: DevEnvironmentGuide,
+    title: "开发环境配置指南",
     hideTabBar: true,
     requireAuth: false,
   },
