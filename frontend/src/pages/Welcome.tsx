@@ -10,8 +10,8 @@ export default function Welcome() {
 
   const handleStartJourney = () => {
     console.log("点击开启智能宠物养护之旅按钮");
-    console.log("准备导航到 /simple-login 页面");
-    navigate("/simple-login");
+    console.log("准备导航到 /login 页面");
+    navigate("/login");
   };
 
   return (

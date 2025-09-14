@@ -9,7 +9,8 @@ import {
   validateQQAppId,
 } from "../config/thirdPartyAuth";
 import axios from "axios";
-import { WechatOutlined } from "@ant-design/icons"
+import { WechatOutlined } from "@ant-design/icons";
+import api from "../services/api";
 
 // 声明微信登录回调接口返回数据类型
 interface WxLoginResponse {
@@ -100,69 +101,157 @@ export default function Login() {
     return Math.floor(1000 + Math.random() * 9000).toString();
   };
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (phoneNumber && countdown === 0) {
-      const code = generateRandomCode();
-      setGeneratedCode(code);
-      // 不显示验证码image.png
-      setCodeExpired(false);
-      setCountdown(60); // 60秒倒计时
-      setLoginError(""); // 清除之前的错误
+      try {
+        setLoginError("");
 
-      console.log("发送验证码到:", phoneNumber, "验证码:", code);
-
-      // 60秒后验证码失效
-      const expireCodeTimer = setTimeout(() => {
-        setCodeExpired(true);
-        setGeneratedCode("");
-      }, 60000);
-
-      // 开始倒计时
-      const countdownTimer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownTimer);
-            return 0;
-          }
-          return prev - 1;
+        // 调用后端API发送验证码
+        const response = await api.post("/auth/send-sms", {
+          mobile: phoneNumber,
         });
-      }, 1000);
 
-      // 清理定时器的函数
-      return () => {
-        clearTimeout(expireCodeTimer);
-        clearInterval(countdownTimer);
-      };
+        if (response.data.success) {
+          // 模拟验证码（实际应用中不应该返回给前端）
+          const code = generateRandomCode();
+          setGeneratedCode(code);
+          console.log("模拟验证码:", code); // 仅用于开发调试
+
+          setCodeExpired(false);
+          setCountdown(60);
+
+          // 60秒后验证码失效
+          const expireCodeTimer = setTimeout(() => {
+            setCodeExpired(true);
+            setGeneratedCode("");
+          }, 60000);
+
+          // 开始倒计时
+          const countdownTimer = setInterval(() => {
+            setCountdown((prev) => {
+              if (prev <= 1) {
+                clearInterval(countdownTimer);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+
+          return () => {
+            clearTimeout(expireCodeTimer);
+            clearInterval(countdownTimer);
+          };
+        } else {
+          setLoginError(response.data.message || "发送验证码失败");
+        }
+      } catch (error: any) {
+        console.error("发送验证码失败:", error);
+        setLoginError(
+          error.response?.data?.message || "发送验证码失败，请稍后重试"
+        );
+
+        // 如果后端还没实现，使用模拟验证码
+        if (error.response?.status === 404 || error.code === "ERR_NETWORK") {
+          console.log("后端API未实现，使用模拟验证码");
+          const code = generateRandomCode();
+          setGeneratedCode(code);
+          console.log("模拟验证码:", code);
+          setCodeExpired(false);
+          setCountdown(60);
+          setLoginError("");
+        }
+      }
     }
   };
 
-  const handlePhoneSubmit = () => {
+  const handlePhoneSubmit = async () => {
     if (phoneNumber && verificationCode) {
-      // 检查验证码是否已失效
-      if (codeExpired || !generatedCode) {
-        setLoginError("验证码已失效，请重新获取");
-        setLoginSuccess(false);
-        return;
-      }
-
-      // 验证验证码是否正确
-      if (verificationCode === generatedCode) {
+      try {
         setLoginError("");
-        setLoginSuccess(true);
-        console.log("手机号登录成功:", { phoneNumber, verificationCode });
 
-        // 显示成功状态2秒后跳转到home页面
-        setTimeout(() => {
-          handleCloseModal();
-          navigate("/home");
-        }, 2000);
-      } else {
-        setLoginError("验证码错误，请重新输入");
-        setLoginSuccess(false);
-        console.log("验证码错误:", {
-          input: verificationCode,
-          correct: generatedCode,
+        // 调用后端API进行短信验证登录
+        const response = await api.post("/auth/sms-login", {
+          mobile: phoneNumber,
+          code: verificationCode,
         });
+
+        if (response.data.success) {
+          const { token, user } = response.data.data;
+
+          // 使用AuthContext保存登录状态
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          setLoginSuccess(true);
+          console.log("手机号登录成功:", { phoneNumber, user });
+
+          // 显示成功状态2秒后跳转到home页面
+          setTimeout(() => {
+            handleCloseModal();
+            navigate("/home");
+            // 刷新页面以确保AuthContext更新
+            window.location.reload();
+          }, 2000);
+        } else {
+          setLoginError(response.data.message || "登录失败");
+          setLoginSuccess(false);
+        }
+      } catch (error: any) {
+        console.error("手机号登录失败:", error);
+
+        // 如果后端还没实现SMS登录，使用模拟验证
+        if (error.response?.status === 404 || error.code === "ERR_NETWORK") {
+          console.log("后端SMS登录API未实现，使用模拟验证");
+
+          // 检查验证码是否已失效
+          if (codeExpired || !generatedCode) {
+            setLoginError("验证码已失效，请重新获取");
+            setLoginSuccess(false);
+            return;
+          }
+
+          // 验证验证码是否正确
+          if (verificationCode === generatedCode) {
+            // 创建模拟用户数据
+            const mockUser = {
+              id: Date.now().toString(),
+              username: phoneNumber,
+              mobile: phoneNumber,
+              nickname: `用户${phoneNumber.slice(-4)}`,
+              loginType: "sms",
+              isVerified: true,
+              lastLoginAt: new Date().toISOString(),
+            };
+
+            const mockToken = `mock_token_${Date.now()}`;
+
+            // 保存到localStorage
+            localStorage.setItem("token", mockToken);
+            localStorage.setItem("user", JSON.stringify(mockUser));
+
+            setLoginError("");
+            setLoginSuccess(true);
+            console.log("模拟手机号登录成功:", { phoneNumber, user: mockUser });
+
+            // 显示成功状态2秒后跳转到home页面
+            setTimeout(() => {
+              handleCloseModal();
+              navigate("/home");
+              // 刷新页面以确保AuthContext更新
+              window.location.reload();
+            }, 2000);
+          } else {
+            setLoginError("验证码错误，请重新输入");
+            setLoginSuccess(false);
+            console.log("验证码错误:", {
+              input: verificationCode,
+              correct: generatedCode,
+            });
+          }
+        } else {
+          setLoginError(error.response?.data?.message || "登录失败，请重试");
+          setLoginSuccess(false);
+        }
       }
     }
   };

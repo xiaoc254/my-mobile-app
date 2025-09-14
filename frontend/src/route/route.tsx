@@ -29,7 +29,6 @@ import SMSLogin from "../pages/SMSLogin";
 import SMSTest from "../pages/SMSTest";
 import AuthDebug from "../pages/AuthDebug";
 import WXCallback from "../pages/WXCallback";
-import SimpleLogin from "../components/SimpleLogin";
 
 // 路由配置接口
 export interface RouteConfig {
@@ -187,13 +186,6 @@ export const routes: RouteConfig[] = [
     path: "/login",
     component: Login,
     title: "登录",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/simple-login",
-    component: SimpleLogin,
-    title: "快速登录",
     hideTabBar: true,
     requireAuth: false,
   },

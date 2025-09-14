@@ -63,6 +63,22 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 验证ID格式
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'ID参数无效'
+      });
+    }
+
+    // 检查是否是有效的ObjectId格式
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID格式不正确'
+      });
+    }
+
     const product = await Product.findById(id);
 
     if (!product) {

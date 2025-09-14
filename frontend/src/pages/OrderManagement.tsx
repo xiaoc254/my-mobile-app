@@ -179,7 +179,7 @@ export default function OrderManagement() {
         (order) =>
           order.orderNumber.includes(searchText) ||
           order.items.some((item) =>
-            item.name.toLowerCase().includes(searchText.toLowerCase())
+            item.name?.toLowerCase().includes(searchText.toLowerCase())
           )
       );
     }

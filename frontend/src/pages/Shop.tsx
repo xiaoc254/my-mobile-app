@@ -60,7 +60,25 @@ export default function Shop() {
           );
         }
 
-        setProducts(fetchedProducts);
+        // 确保产品ID是字符串格式并添加调试信息
+        const validatedProducts = fetchedProducts.map((product: any) => {
+          const productId = product.id || product._id;
+          console.log(
+            "Product from backend:",
+            product.name,
+            "ID:",
+            productId,
+            "Type:",
+            typeof productId
+          );
+
+          return {
+            ...product,
+            id: String(productId), // 确保ID是字符串
+          };
+        });
+
+        setProducts(validatedProducts);
         setHasMore(false); // 暂时禁用无限滚动，因为后端还没有分页
       } else {
         Toast.show("获取商品数据失败");
@@ -109,6 +127,12 @@ export default function Shop() {
   };
 
   const handleProductClick = (productId: string) => {
+    console.log(
+      "Clicking product with ID:",
+      productId,
+      "Type:",
+      typeof productId
+    );
     if (!productId || productId === "undefined") {
       Toast.show("商品ID无效");
       return;

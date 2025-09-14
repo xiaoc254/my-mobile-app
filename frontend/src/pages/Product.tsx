@@ -65,6 +65,8 @@ export default function Product() {
         return;
       }
 
+      console.log("Product ID from URL:", id, "Type:", typeof id);
+
       const response: any = await productAPI.getProductById(id);
 
       if (response.success) {
