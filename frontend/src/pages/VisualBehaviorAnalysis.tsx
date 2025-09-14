@@ -19,49 +19,86 @@ export default function VisualBehaviorAnalysis() {
 
   // 检查设备和浏览器兼容性
   const checkCameraCompatibility = () => {
-    // 检查是否支持getUserMedia
+    // 获取浏览器和环境信息
+    const userAgent = navigator.userAgent;
+    const isWeChatBrowser = /MicroMessenger/i.test(userAgent);
+    const isQQBrowser = /QQ/i.test(userAgent);
+    const isMobileBrowser = /Mobile|Android|iPhone|iPad/i.test(userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+
+    // 检查是否支持基础API
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      return {
-        supported: false,
-        reason: "浏览器不支持媒体设备访问",
-        suggestion: "请更新到最新版本的浏览器",
-      };
+      let reason = "浏览器不支持媒体设备访问";
+      let suggestion = "请更新到最新版本的浏览器";
+
+      if (isWeChatBrowser) {
+        reason = "微信内置浏览器限制了摄像头访问";
+        suggestion = "请点击右上角菜单选择'在浏览器中打开'";
+      } else if (isQQBrowser) {
+        reason = "QQ浏览器可能限制了摄像头访问";
+        suggestion = "请使用Chrome、Safari等标准浏览器";
+      } else if (isMobileBrowser) {
+        reason = "当前移动浏览器不支持摄像头API";
+        suggestion = "请使用Chrome、Safari或其他现代浏览器";
+      }
+
+      return { supported: false, reason, suggestion };
     }
 
-    // 检查是否为HTTPS或localhost
+    // 检查是否为HTTPS或localhost（更宽松的检查）
     const isSecureContext =
       window.isSecureContext ||
       location.protocol === "https:" ||
       location.hostname === "localhost" ||
-      location.hostname === "127.0.0.1";
+      location.hostname === "127.0.0.1" ||
+      location.hostname.startsWith("192.168.") ||
+      location.hostname.startsWith("10.") ||
+      location.hostname.startsWith("172.");
 
     // 获取更详细的环境信息
-    const currentUrl = location.href;
     const isLocalNetwork = location.hostname.match(/^192\.168\.|^172\.|^10\./);
+    const isDevelopment =
+      location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1" ||
+      isLocalNetwork;
 
-    if (!isSecureContext) {
+    if (!isSecureContext && !isDevelopment) {
       let reason = "需要HTTPS环境才能访问摄像头";
       let suggestion = "请在HTTPS环境下使用此功能";
 
-      if (isLocalNetwork) {
-        reason = "局域网IP需要HTTPS才能访问摄像头";
-        suggestion = `请使用以下方式访问：
-1. 使用localhost:5173 (如果是本地开发)
-2. 配置HTTPS证书
-3. 使用ngrok等工具提供HTTPS访问`;
-      } else if (currentUrl.includes(":")) {
-        reason = "开发服务器需要HTTPS才能访问摄像头";
-        suggestion = "请使用localhost或配置HTTPS证书";
+      if (isWeChatBrowser || isQQBrowser) {
+        suggestion += "\n\n📱 移动端用户请点击右上角菜单选择'在浏览器中打开'";
       }
 
-      return {
-        supported: false,
-        reason,
-        suggestion,
-      };
+      return { supported: false, reason, suggestion };
     }
 
-    return { supported: true };
+    // 对于开发环境，给出更友好的提示
+    if (isDevelopment && !isSecureContext) {
+      console.warn("⚠️ 在非安全上下文中使用摄像头API，这在生产环境中会失败");
+    }
+
+    // 特殊处理移动端
+    if (isMobileBrowser) {
+      if (isIOS && !isSecureContext) {
+        return {
+          supported: false,
+          reason: "iOS设备需要HTTPS环境",
+          suggestion: "请确保使用https://访问或在Safari中允许不安全内容",
+        };
+      }
+
+      if (isWeChatBrowser) {
+        return {
+          supported: false,
+          reason: "微信内置浏览器限制摄像头访问",
+          suggestion:
+            "请点击右上角'...'菜单，选择'在Safari中打开'或'在系统浏览器中打开'",
+        };
+      }
+    }
+
+    return { supported: true, reason: "", suggestion: "" };
   };
 
   // 请求摄像头和麦克风权限
@@ -111,17 +148,33 @@ export default function VisualBehaviorAnalysis() {
     }
   };
 
+  // 显示详细错误信息
+  const showDetailedError = (reason: string, suggestion: string) => {
+    // 使用Toast显示简短错误
+    Toast.show({
+      content: `❌ ${reason}`,
+      position: "center",
+      duration: 5000,
+    });
+
+    // 在控制台输出详细信息用于调试
+    console.error("摄像头访问失败:", {
+      reason,
+      suggestion,
+      userAgent: navigator.userAgent,
+      location: location.href,
+      isSecureContext: window.isSecureContext,
+      hasMediaDevices: !!navigator.mediaDevices,
+      timestamp: new Date().toISOString(),
+    });
+  };
+
   // 开始录制视频
   const startRecording = async () => {
     // 首先检查兼容性
     const compatibility = checkCameraCompatibility();
     if (!compatibility.supported) {
-      Toast.show({
-        content: `❌ ${compatibility.reason}`,
-        position: "center",
-        duration: 4000,
-      });
-      console.error("兼容性检查失败:", compatibility);
+      showDetailedError(compatibility.reason, compatibility.suggestion || "");
       return;
     }
 
@@ -143,20 +196,34 @@ export default function VisualBehaviorAnalysis() {
       }
 
       const stream = permissionResult.stream!;
-      console.log("✅ 成功获取媒体流");
+      console.log(
+        "✅ 成功获取媒体流，视频轨道数:",
+        stream.getVideoTracks().length
+      );
 
       streamRef.current = stream;
 
       // 显示摄像头预览
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
       }
 
+      // 检查支持的录制格式
+      let mimeType = "video/webm;codecs=vp9";
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = "video/webm;codecs=vp8";
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = "video/webm";
+          if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = "video/mp4"; // 回退到mp4
+          }
+        }
+      }
+      console.log("使用录制格式:", mimeType);
+
       // 创建录制器
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp9", // 使用webm格式
-      });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
 
       mediaRecorderRef.current = mediaRecorder;
       const chunks: BlobPart[] = [];
@@ -168,7 +235,7 @@ export default function VisualBehaviorAnalysis() {
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "video/webm" });
+        const blob = new Blob(chunks, { type: mimeType });
         setVideoBlob(blob);
         const url = URL.createObjectURL(blob);
         setVideoUrl(url);
@@ -202,19 +269,30 @@ export default function VisualBehaviorAnalysis() {
     } catch (error: any) {
       console.error("录制失败:", error);
 
-      let errorMessage = "❌ 无法访问摄像头，请检查权限设置";
+      let errorMessage = "❌ 无法访问摄像头";
+      let suggestion = "请检查权限设置";
 
-      if (error.message.includes("权限被拒绝")) {
+      if (
+        error.name === "NotAllowedError" ||
+        error.message.includes("权限被拒绝")
+      ) {
         errorMessage = "🔐 摄像头权限被拒绝";
+        suggestion = "请在浏览器地址栏点击摄像头图标，选择'允许'";
+      } else if (error.name === "NotFoundError") {
+        errorMessage = "📷 未找到摄像头设备";
+        suggestion = "请检查设备是否连接摄像头";
+      } else if (error.name === "NotSupportedError") {
+        errorMessage = "🚫 浏览器不支持此功能";
+        suggestion = "请使用Chrome、Safari或Edge浏览器";
+      } else if (error.name === "NotReadableError") {
+        errorMessage = "🔒 摄像头被其他应用占用";
+        suggestion = "请关闭其他使用摄像头的应用";
       } else if (error.message.includes("HTTPS")) {
-        errorMessage = "🔒 需要HTTPS环境才能录制视频";
+        errorMessage = "🔒 需要HTTPS环境";
+        suggestion = "请重启开发服务器";
       }
 
-      Toast.show({
-        content: errorMessage,
-        position: "center",
-        duration: 4000,
-      });
+      showDetailedError(errorMessage, suggestion);
     }
   };
 
@@ -629,59 +707,194 @@ export default function VisualBehaviorAnalysis() {
           </div>
         </div>
 
-        {/* 移动端权限帮助 */}
+        {/* 问题解决指南 */}
         {!isRecording && !hasRecorded && (
-          <div
-            style={{
-              backgroundColor: "#fff3cd",
-              borderRadius: "12px",
-              padding: "15px",
-              marginTop: "15px",
-              border: "1px solid #ffeaa7",
-            }}
-          >
+          <>
             <div
               style={{
-                fontSize: "14px",
-                fontWeight: "bold",
-                color: "#d68910",
-                marginBottom: "8px",
+                backgroundColor: "#e8f5e8",
+                borderRadius: "12px",
+                padding: "15px",
+                marginTop: "15px",
+                border: "1px solid #4CAF50",
               }}
             >
-              📱 移动端使用提示
-            </div>
-            <div
-              style={{
-                fontSize: "13px",
-                color: "#8e5a00",
-                lineHeight: "1.5",
-                textAlign: "left",
-              }}
-            >
-              <strong>如果无法访问摄像头，请检查：</strong>
-              <br />• <strong>浏览器权限</strong>
-              ：点击地址栏左侧的锁形图标，允许摄像头访问
-              <br />• <strong>系统权限</strong>
-              ：在手机设置-应用权限中允许浏览器使用摄像头
-              <br />• <strong>HTTPS环境</strong>
-              ：现代浏览器要求在安全环境下才能访问摄像头
-              <br />• <strong>Chrome</strong>：地址栏 → 站点设置 → 摄像头 → 允许
-              <br />• <strong>Safari</strong>：设置 → Safari → 摄像头 → 允许
-              <br />
-              <br />
-              <span
-                onClick={() => navigate("/mobile-media-test")}
+              <div
                 style={{
-                  textDecoration: "underline",
-                  cursor: "pointer",
+                  fontSize: "14px",
                   fontWeight: "bold",
-                  color: "#d68910",
+                  color: "#2E7D32",
+                  marginBottom: "8px",
                 }}
               >
-                🔧 点击进入权限检测工具 →
-              </span>
+                🔒 HTTPS已启用（自签名证书）
+              </div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#2E7D32",
+                  lineHeight: "1.5",
+                  textAlign: "left",
+                }}
+              >
+                已启用HTTPS支持摄像头访问（自签名证书）：
+                <br />• <strong>https://localhost:5173</strong> (推荐)
+                <br />• <strong>https://127.0.0.1:5173</strong>
+                <br />• <strong>https://192.168.x.x:5173</strong> (局域网)
+                <br />
+                <br />
+                <strong>首次访问说明</strong>：浏览器会显示"不安全"警告
+                <br />• 点击"高级" → "继续访问localhost(不安全)"
+                <br />• 或点击"了解详情" → "访问此网站"
+              </div>
             </div>
-          </div>
+
+            <div
+              style={{
+                backgroundColor: "#fff3cd",
+                borderRadius: "12px",
+                padding: "15px",
+                marginTop: "15px",
+                border: "1px solid #ffeaa7",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  color: "#d68910",
+                  marginBottom: "8px",
+                }}
+              >
+                📱 移动端使用指南
+              </div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#8e5a00",
+                  lineHeight: "1.5",
+                  textAlign: "left",
+                }}
+              >
+                <strong>如果在微信/QQ浏览器中无法使用：</strong>
+                <br />• 点击右上角"..."菜单
+                <br />• 选择"在浏览器中打开"或"在Safari中打开"
+                <br />• 使用Chrome、Safari、Edge等标准浏览器
+                <br />
+                <br />
+                <strong>快速解决方案：</strong>
+                <br />• <strong>HTTPS访问</strong>：试试 https://localhost:5173
+                替代当前地址
+                <br />• <strong>权限设置</strong>：地址栏 → 摄像头图标 → 允许
+                <br />• <strong>浏览器刷新</strong>：F5或下拉刷新重新请求权限
+                <br />• <strong>系统权限</strong>：手机设置 → 浏览器 →
+                摄像头权限
+                <br />
+                <br />
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <span
+                    onClick={() =>
+                      window.open(
+                        "http://localhost:5173" + location.pathname,
+                        "_blank"
+                      )
+                    }
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      color: "#d68910",
+                    }}
+                  >
+                    🔒 HTTPS访问
+                  </span>
+                  <span
+                    onClick={() => navigate("/mobile-media-test")}
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      color: "#d68910",
+                    }}
+                  >
+                    🔧 权限检测
+                  </span>
+                  <span
+                    onClick={() => navigate("/dev-environment-guide")}
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      color: "#d68910",
+                    }}
+                  >
+                    📖 配置指南
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 备用方案 */}
+            <div
+              style={{
+                backgroundColor: "#f0f8ff",
+                borderRadius: "12px",
+                padding: "15px",
+                marginTop: "15px",
+                border: "1px solid #87CEEB",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  color: "#1976D2",
+                  marginBottom: "8px",
+                }}
+              >
+                🎯 备用分析方案
+              </div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#1565C0",
+                  lineHeight: "1.5",
+                  textAlign: "left",
+                }}
+              >
+                如果摄像头功能无法使用，您也可以：
+                <br />• <strong>语音分析</strong>：通过录制宠物叫声进行行为分析
+                <br />• <strong>手动记录</strong>：在日常日志中记录观察到的行为
+                <br />• <strong>照片分析</strong>：上传宠物照片进行静态分析
+                <br />
+                <br />
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <span
+                    onClick={() => navigate("/voice-analysis")}
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      color: "#1976D2",
+                    }}
+                  >
+                    🎤 语音分析
+                  </span>
+                  <span
+                    onClick={() => navigate("/daily-log")}
+                    style={{
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      color: "#1976D2",
+                    }}
+                  >
+                    📝 日常记录
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
