@@ -24,6 +24,12 @@ import TemperatureRecord from "../pages/TemperatureRecord";
 import FeedingComplete from "../pages/FeedingComplete";
 import TestPage from "../pages/TestPage";
 import Welcome from "../pages/Welcome";
+import PetRecipeSelect from "../pages/PetRecipeSelect";
+import DogRecipe from "../pages/DogRecipe";
+import CatRecipe from "../pages/CatRecipe";
+import HealthMonitor from "../pages/HealthMonitor";
+import VoiceAnalysis from "../pages/VoiceAnalysis";
+import VoiceAnalysisResult from "../pages/VoiceAnalysisResult";
 import AuthCallback from "../pages/AuthCallback";
 import SMSLogin from "../pages/SMSLogin";
 import SMSTest from "../pages/SMSTest";
@@ -263,6 +269,48 @@ export const routes: RouteConfig[] = [
     path: "/order-management",
     component: OrderManagement,
     title: "订单管理",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/pet-recipe-select",
+    component: PetRecipeSelect,
+    title: "科学食谱",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/dog-recipe",
+    component: DogRecipe,
+    title: "狗狗营养食物推荐",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/cat-recipe",
+    component: CatRecipe,
+    title: "猫猫营养食物推荐",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/health-monitor",
+    component: HealthMonitor,
+    title: "健康监测",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/voice-analysis",
+    component: VoiceAnalysis,
+    title: "声音情绪识别",
+    hideTabBar: true,
+    requireAuth: false,
+  },
+  {
+    path: "/voice-analysis-result",
+    component: VoiceAnalysisResult,
+    title: "声音分析结果",
     hideTabBar: true,
     requireAuth: false,
   },
