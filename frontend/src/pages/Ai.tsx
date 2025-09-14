@@ -320,7 +320,7 @@ export default function ChatPage() {
         {/* 聊天内容 */}
         <div
           ref={chatContainerRef}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-1 py-2 space-y-2 smooth-scroll bg-gradient-to-b from-gray-50 to-blue-50 chat-content-area w-full"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-2 smooth-scroll bg-gradient-to-b from-gray-50 to-blue-50 chat-content-area w-full"
           style={{
             paddingBottom:
               messages.length > 0
@@ -364,16 +364,16 @@ export default function ChatPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className={clsx(
-                    "flex items-start mb-2",
+                    "flex items-start mb-4",
                     msg.role === "user"
-                      ? "flex-row justify-end pr-1"
-                      : "flex-row justify-start pl-1"
+                      ? "flex-row justify-end pr-2"
+                      : "flex-row justify-start pl-2"
                   )}
                 >
                   {/* AI头像 - 在左侧 */}
                   {msg.role === "ai" && (
-                    <div className="flex flex-col items-center mr-1">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
+                    <div className="flex items-center mr-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
                         <img
                           src="/ai_avater.png"
                           alt="AI头像"
@@ -383,9 +383,6 @@ export default function ChatPage() {
                             objectFit: "cover",
                           }}
                         />
-                      </div>
-                      <div className="text-xs text-blue-600 mt-0.5 font-medium">
-                        AI
                       </div>
                     </div>
                   )}
@@ -398,27 +395,12 @@ export default function ChatPage() {
                   >
                     {/* 消息气泡 */}
                     <div
-                      className={`relative px-2 py-1 rounded-xl max-w-[75%] min-w-[60px] shadow-lg ${
+                      className={`relative px-3 py-2 rounded-2xl max-w-[75%] min-w-[60px] shadow-md ${
                         msg.role === "user"
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-tr-lg bubble-user"
-                          : "bg-white text-gray-800 rounded-tl-lg bubble-ai border border-gray-100"
+                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md bubble-user"
+                          : "bg-white text-gray-800 rounded-bl-md bubble-ai border border-gray-200"
                       }`}
                     >
-                      {/* 消息状态指示器 */}
-                      {msg.role === "user" && (
-                        <div className="absolute -bottom-1 -right-1">
-                          {msg.status === "sending" && (
-                            <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
-                          )}
-                          {msg.status === "sent" && (
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          )}
-                          {msg.status === "error" && (
-                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                          )}
-                        </div>
-                      )}
-
                       {msg.image && (
                         <div className="mb-4 block">
                           <PhotoView src={msg.image}>
@@ -433,7 +415,7 @@ export default function ChatPage() {
 
                       {msg.text && (
                         <p
-                          className={`text-xs leading-relaxed block break-words ${
+                          className={`text-sm leading-relaxed block break-words ${
                             msg.role === "user"
                               ? "text-white font-medium"
                               : "text-gray-800"
@@ -441,6 +423,8 @@ export default function ChatPage() {
                           style={{
                             wordBreak: "break-word",
                             overflowWrap: "break-word",
+                            fontSize: "14px",
+                            lineHeight: "1.5",
                           }}
                         >
                           {msg.text}
@@ -451,7 +435,7 @@ export default function ChatPage() {
                     {/* 时间戳 */}
                     <div
                       className={clsx(
-                        "text-xs mt-0.5 px-0.5 text-gray-400",
+                        "text-xs mt-1 px-1 text-gray-500",
                         msg.role === "user" ? "text-right" : "text-left"
                       )}
                     >
@@ -461,12 +445,9 @@ export default function ChatPage() {
 
                   {/* 用户头像 - 在右侧 */}
                   {msg.role === "user" && (
-                    <div className="flex flex-col items-center ml-1">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
-                        <span className="text-white font-bold">🐶</span>
-                      </div>
-                      <div className="text-xs text-green-600 mt-0.5 font-medium">
-                        用户
+                    <div className="flex items-center ml-2">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
+                        <span className="text-white font-bold text-sm">🐶</span>
                       </div>
                     </div>
                   )}
@@ -483,37 +464,37 @@ export default function ChatPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-start mb-6 flex-row justify-start pl-4"
+                className="flex items-start mb-1 flex-row justify-start pl-0.5"
               >
-                <div className="flex flex-col items-center mr-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xl flex-shrink-0 shadow-lg overflow-hidden animate-pulse">
+                <div className="flex items-center mr-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden animate-pulse">
                     <img
                       src="/ai_avater.png"
                       alt="AI头像"
                       style={{
-                        width: 32,
-                        height: 32,
+                        width: 18,
+                        height: 18,
                         objectFit: "cover",
                       }}
                     />
                   </div>
-                  <div className="text-base text-blue-600 mt-2 font-medium">
-                    AI助手
-                  </div>
                 </div>
                 <div>
-                  <div className="bg-white text-gray-800 rounded-3xl rounded-tl-lg px-5 py-4 shadow-lg border border-gray-100 bubble-ai min-w-[140px]">
-                    <div className="flex space-x-2 items-center">
-                      <span className="text-gray-700 text-lg mr-3">
+                  <div className="bg-white text-gray-800 rounded-2xl rounded-bl-md px-3 py-2 shadow-md border border-gray-200 bubble-ai min-w-[80px]">
+                    <div className="flex space-x-1 items-center">
+                      <span
+                        className="text-gray-700 text-sm mr-2"
+                        style={{ fontSize: "13px" }}
+                      >
                         正在思考中...
                       </span>
-                      <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
                       <div
-                        className="w-3 h-3 bg-purple-500 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
                         style={{ animationDelay: "0.15s" }}
                       ></div>
                       <div
-                        className="w-3 h-3 bg-green-500 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
                         style={{ animationDelay: "0.3s" }}
                       ></div>
                     </div>
