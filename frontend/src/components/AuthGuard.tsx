@@ -14,8 +14,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
-  // 如果正在加载，显示加载状态
-  if (isLoading) {
+  // 对于不需要认证的页面，即使正在加载也允许访问
+  if (isLoading && requireAuth) {
     return (
       <div
         style={{
@@ -39,7 +39,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
 
   // 如果已登录但访问登录页，重定向到首页
   if (isAuthenticated && location.pathname === "/login") {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;

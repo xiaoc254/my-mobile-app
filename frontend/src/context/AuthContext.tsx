@@ -49,16 +49,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           setToken(savedToken);
           setUser(JSON.parse(savedUser));
-          // 验证token是否仍然有效
-          await checkAuth();
+          // 验证token是否仍然有效，但不阻塞初始化过程
+          checkAuth().catch(() => {
+            // 静默处理错误，不影响用户体验
+            console.log("Token validation failed, but continuing...");
+          });
         } catch (error) {
           // Token无效，清除本地存储
+          console.log("Failed to parse saved auth data:", error);
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setToken(null);
           setUser(null);
         }
       }
+      // 确保加载状态及时结束，不阻塞导航
       setIsLoading(false);
     };
 
@@ -68,14 +73,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 检查认证状态
   const checkAuth = async () => {
     try {
-      const response = await api.get("/auth/me");
+      // 设置超时避免长时间等待
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+
+      const response = await api.get("/auth/me", {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
       if (response.data.user) {
         setUser(response.data.user);
         localStorage.setItem("user", JSON.stringify(response.data.user));
       }
-    } catch (error) {
-      // Token无效或过期
-      logout();
+    } catch (error: any) {
+      console.log("Auth check failed:", error.message);
+      // 只有在明确的401错误时才登出，其他错误（如网络错误）不强制登出
+      if (error.response?.status === 401) {
+        logout();
+      }
+      // 对于网络错误等，保持现有状态，不强制登出
     }
   };
 
