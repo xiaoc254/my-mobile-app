@@ -9,15 +9,15 @@ import PetTypeRizhi from "../pages/PetTypeRizhi";
 import PetTypeQx from "../pages/PetTypeQx";
 import PetTypeJiangKang from "../pages/PetTypejiangkang";
 import PetGenderSelect from "../pages/PetGenderSelect";
-import PetAvatarNickname from "../pages/PetAvatarNickname";
-import PetAgeWeight from "../pages/PetAgeWeight";
+// import PetAvatarNickname from "../pages/PetAvatarNickname";
+// import PetAgeWeight from "../pages/PetAgeWeight";
 import PetDetail from "../pages/PetDetail";
 import FeedingPlan from "../pages/FeedingPlan";
 import FeedingComplete from "../pages/FeedingComplete";
 import ExercisePlan from "../pages/ExercisePlan";
 import DailyLog from "../pages/DailyLog";
 import TemperatureRecord from "../pages/TemperatureRecord";
-import TestPage from "../pages/TestPage"; // New import
+// import TestPage from "../pages/TestPage"; // New import
 import Download from "../pages/Download";
 // 路由配置接口
 export interface RouteConfig {
