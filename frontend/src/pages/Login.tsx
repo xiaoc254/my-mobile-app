@@ -145,17 +145,22 @@ export default function Login() {
           setLoginError(response.data.message || "发送验证码失败");
         }
       } catch (error: any) {
-        console.error("发送验证码失败:", error);
+        if (import.meta.env.DEV) {
+          console.error("发送验证码失败:", error);
+        }
         setLoginError(
           error.response?.data?.message || "发送验证码失败，请稍后重试"
         );
 
-        // 如果后端还没实现，使用模拟验证码
-        if (error.response?.status === 404 || error.code === "ERR_NETWORK") {
-          console.log("后端API未实现，使用模拟验证码");
+        // 如果后端还没实现，使用模拟验证码 (仅开发环境)
+        if (
+          import.meta.env.DEV &&
+          (error.response?.status === 404 || error.code === "ERR_NETWORK")
+        ) {
+          console.log("开发环境：后端API未实现，使用模拟验证码");
           const code = generateRandomCode();
           setGeneratedCode(code);
-          console.log("模拟验证码:", code);
+          console.log("开发环境模拟验证码:", code);
           setCodeExpired(false);
           setCountdown(60);
           setLoginError("");
@@ -183,7 +188,9 @@ export default function Login() {
           localStorage.setItem("user", JSON.stringify(user));
 
           setLoginSuccess(true);
-          console.log("手机号登录成功:", { phoneNumber, user });
+          if (import.meta.env.DEV) {
+            console.log("手机号登录成功:", { phoneNumber, user });
+          }
 
           // 显示成功状态2秒后跳转到home页面
           setTimeout(() => {

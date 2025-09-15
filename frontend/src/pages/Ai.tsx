@@ -248,7 +248,9 @@ export default function ChatPage() {
         toast.success("AI回复完成");
       }, thinkingTime);
     } catch (error) {
-      console.error("AI API 调用失败:", error);
+      if (import.meta.env.DEV) {
+        console.error("AI API 调用失败:", error);
+      }
       setIsTyping(false);
 
       // 更新用户消息状态为错误
