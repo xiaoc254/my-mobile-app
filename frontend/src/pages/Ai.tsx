@@ -273,16 +273,24 @@ export default function ChatPage() {
   return (
     <PhotoProvider>
       <div
-        className="flex flex-col h-screen overflow-hidden chat-container bg-gray-50"
+        className="flex flex-col h-screen overflow-hidden chat-container"
         style={{
+          background:
+            "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)",
           overscrollBehavior: "none",
           WebkitOverflowScrolling: "touch",
           overflowX: "hidden",
           maxWidth: "100vw",
-          width: "100%",
+          width: "100vw",
+          height: "100vh",
           margin: 0,
           padding: 0,
           boxSizing: "border-box",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
       >
         <Toaster
@@ -292,38 +300,82 @@ export default function ChatPage() {
             className: "text-sm",
           }}
         />
-        {/* 顶部导航 - 移动端优化 */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100 px-1 py-1 flex items-center justify-between h-[40px] z-10 shadow-md w-full overflow-hidden">
-          <div className="flex items-center gap-1 w-full min-w-0">
-            <button
+        {/* 顶部导航 - 简洁设计 */}
+        <div
+          className="relative z-10 px-4 py-3 flex items-center justify-between shadow-xl"
+          style={{
+            background: "linear-gradient(90deg, #d97706 0%, #f59e0b 100%)",
+            borderBottom: "3px solid #92400e",
+          }}
+        >
+          <div className="flex items-center gap-3 w-full min-w-0">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/profile")}
-              className="text-gray-700 text-sm font-medium hover:text-blue-600 transition-all duration-200 hover:scale-110"
+              className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-800 hover:bg-amber-50 transition-all duration-300 shadow-lg border-2 border-amber-500"
             >
-              ←
-            </button>
+              <span className="text-lg">←</span>
+            </motion.button>
+
             <div className="flex-1 text-center">
-              <h1 className="font-bold text-gray-900 text-xs tracking-wide">
-                🐶 AI助手
-              </h1>
-              <div className="text-xs text-blue-600 font-medium -mt-0.5">
-                在线
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-pulse">
+                  <span className="text-sm">🤖</span>
+                </div>
+                <div>
+                  <h1
+                    className="font-bold tracking-wide"
+                    style={{
+                      color: "white",
+                      fontSize: "16px",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    }}
+                  >
+                    AI智能助手
+                  </h1>
+                  <div className="flex items-center justify-center gap-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span
+                      className="text-xs font-medium"
+                      style={{
+                        color: "white",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                        fontSize: "12px",
+                      }}
+                    >
+                      在线服务
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
-                <span className="text-xs">🐶</span>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                <span className="text-sm">👤</span>
               </div>
-              <div className="text-xs text-gray-700 mt-0.5 font-medium">
+              <div
+                className="text-xs mt-1 font-semibold"
+                style={{
+                  color: "white",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                  fontSize: "11px",
+                }}
+              >
                 用户
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* 聊天内容 */}
         <div
           ref={chatContainerRef}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-2 smooth-scroll bg-gradient-to-b from-gray-50 to-blue-50 chat-content-area w-full"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-6 space-y-4 smooth-scroll chat-content-area w-full"
           style={{
             paddingBottom:
               messages.length > 0
@@ -332,30 +384,98 @@ export default function ChatPage() {
                   : "120px"
                 : "20px",
             maxWidth: "100%",
+            background: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
           }}
         >
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center min-h-full px-1 py-2">
-              <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-full p-3 mb-2 shadow-lg">
-                <div className="text-lg">🐕</div>
-              </div>
-              <h2 className="text-sm font-bold text-gray-800 mb-1 leading-tight">
-                欢迎使用AI助手
-              </h2>
-              <p className="text-gray-600 text-xs px-1 leading-relaxed mb-2">
-                请描述您的问题，我将为您提供帮助
-              </p>
-              <div className="flex flex-wrap justify-center gap-1 text-xs text-gray-500">
-                <span className="bg-blue-50 px-1 py-0.5 rounded-full text-xs">
-                  📷 图片
-                </span>
-                <span className="bg-purple-50 px-1 py-0.5 rounded-full text-xs">
-                  💬 问答
-                </span>
-                <span className="bg-green-50 px-1 py-0.5 rounded-full text-xs">
-                  🐈 建议
-                </span>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center min-h-full px-4 py-8">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="relative mb-6"
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-300 to-red-400 rounded-full p-4 shadow-2xl border-4 border-white animate-bounce">
+                  <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                </div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+              </motion.div>
+
+              <motion.h2
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+                className="text-xl font-bold mb-2 leading-tight"
+                style={{
+                  color: "#1f2937",
+                  textShadow: "0 2px 4px rgba(255,255,255,0.8)",
+                  fontSize: "20px",
+                }}
+              >
+                欢迎使用AI智能助手
+              </motion.h2>
+
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="px-4 leading-relaxed mb-6 max-w-xs font-medium"
+                style={{
+                  color: "#374151",
+                  textShadow: "0 1px 3px rgba(255,255,255,0.9)",
+                  fontSize: "15px",
+                  lineHeight: "1.6",
+                }}
+              >
+                我可以为您提供专业的宠物护理建议，支持文字、图片和语音交流
+              </motion.p>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="flex flex-wrap justify-center gap-3"
+              >
+                <div
+                  className="px-4 py-2 rounded-full border-2 border-white shadow-lg hover:scale-105 transition-transform font-semibold"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)",
+                    color: "white",
+                    fontSize: "14px",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  📷 图片分析
+                </div>
+                <div
+                  className="px-4 py-2 rounded-full border-2 border-white shadow-lg hover:scale-105 transition-transform font-semibold"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)",
+                    color: "white",
+                    fontSize: "14px",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  🎤 语音对话
+                </div>
+                <div
+                  className="px-4 py-2 rounded-full border-2 border-white shadow-lg hover:scale-105 transition-transform font-semibold"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    color: "white",
+                    fontSize: "14px",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  💬 智能问答
+                </div>
+              </motion.div>
             </div>
           ) : (
             <AnimatePresence>
@@ -375,19 +495,20 @@ export default function ChatPage() {
                 >
                   {/* AI头像 - 在左侧 */}
                   {msg.role === "ai" && (
-                    <div className="flex items-center mr-2">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex items-center mr-3"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
                         <img
                           src="/ai_avater.png"
                           alt="AI头像"
-                          style={{
-                            width: 18,
-                            height: 18,
-                            objectFit: "cover",
-                          }}
+                          className="w-full h-full object-cover"
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* 消息容器 */}
@@ -397,12 +518,27 @@ export default function ChatPage() {
                     }`}
                   >
                     {/* 消息气泡 */}
-                    <div
-                      className={`relative px-3 py-2 rounded-2xl max-w-[75%] min-w-[60px] shadow-md ${
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.3 }}
+                      className={`relative px-4 py-3 rounded-3xl max-w-[80%] min-w-[60px] shadow-lg ${
                         msg.role === "user"
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md bubble-user"
-                          : "bg-white text-gray-800 rounded-bl-md bubble-ai border border-gray-200"
+                          ? "text-white font-semibold"
+                          : "shadow-xl"
                       }`}
+                      style={{
+                        background:
+                          msg.role === "user"
+                            ? "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)"
+                            : "linear-gradient(135deg, #fde047 0%, #fb923c 100%)",
+                        border:
+                          msg.role === "ai" ? "3px solid #ea580c" : "none",
+                        borderRadius:
+                          msg.role === "user"
+                            ? "24px 24px 8px 24px"
+                            : "24px 24px 24px 8px",
+                      }}
                     >
                       {msg.image && (
                         <div className="mb-4 block">
@@ -418,29 +554,38 @@ export default function ChatPage() {
 
                       {msg.text && (
                         <p
-                          className={`text-sm leading-relaxed block break-words ${
-                            msg.role === "user"
-                              ? "text-white font-medium"
-                              : "text-gray-800"
+                          className={`leading-relaxed block break-words font-semibold ${
+                            msg.role === "user" ? "text-white" : ""
                           }`}
                           style={{
                             wordBreak: "break-word",
                             overflowWrap: "break-word",
-                            fontSize: "14px",
-                            lineHeight: "1.5",
+                            fontSize: "15px",
+                            lineHeight: "1.7",
+                            color: msg.role === "ai" ? "#1f2937" : "white",
+                            fontWeight: "600",
+                            textShadow:
+                              msg.role === "ai"
+                                ? "0 1px 2px rgba(0,0,0,0.1)"
+                                : "0 1px 2px rgba(0,0,0,0.3)",
                           }}
                         >
                           {msg.text}
                         </p>
                       )}
-                    </div>
+                    </motion.div>
 
                     {/* 时间戳 */}
                     <div
                       className={clsx(
-                        "text-xs mt-1 px-1 text-gray-500",
+                        "text-xs mt-2 px-1 font-medium",
                         msg.role === "user" ? "text-right" : "text-left"
                       )}
+                      style={{
+                        color: "#4b5563",
+                        textShadow: "0 1px 2px rgba(255,255,255,0.8)",
+                        fontSize: "12px",
+                      }}
                     >
                       {formatMessageTime(msg.timestamp)}
                     </div>
@@ -448,11 +593,16 @@ export default function ChatPage() {
 
                   {/* 用户头像 - 在右侧 */}
                   {msg.role === "user" && (
-                    <div className="flex items-center ml-2">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden">
-                        <span className="text-white font-bold text-sm">🐶</span>
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex items-center ml-3"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center flex-shrink-0 shadow-lg border-2 border-white/30">
+                        <span className="text-white font-bold text-sm">👤</span>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </motion.div>
               ))}
@@ -467,41 +617,73 @@ export default function ChatPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-start mb-1 flex-row justify-start pl-0.5"
+                className="flex items-start mb-4 flex-row justify-start pl-2"
               >
-                <div className="flex items-center mr-2">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs flex-shrink-0 shadow-lg overflow-hidden animate-pulse">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="flex items-center mr-3"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
                     <img
                       src="/ai_avater.png"
                       alt="AI头像"
-                      style={{
-                        width: 18,
-                        height: 18,
-                        objectFit: "cover",
-                      }}
+                      className="w-full h-full object-cover"
                     />
                   </div>
-                </div>
+                </motion.div>
                 <div>
-                  <div className="bg-white text-gray-800 rounded-2xl rounded-bl-md px-3 py-2 shadow-md border border-gray-200 bubble-ai min-w-[80px]">
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    className="px-4 py-3 shadow-xl min-w-[120px]"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #fde047 0%, #fb923c 100%)",
+                      border: "3px solid #ea580c",
+                      borderRadius: "24px 24px 24px 8px",
+                    }}
+                  >
                     <div className="flex space-x-1 items-center">
                       <span
-                        className="text-gray-700 text-sm mr-2"
-                        style={{ fontSize: "13px" }}
+                        className="text-sm mr-3 font-semibold"
+                        style={{
+                          color: "#1f2937",
+                          textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                          fontSize: "14px",
+                        }}
                       >
-                        正在思考中...
+                        AI正在思考
                       </span>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.15s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.3s" }}
-                      ></div>
+                      <motion.div
+                        className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0,
+                        }}
+                      ></motion.div>
+                      <motion.div
+                        className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0.2,
+                        }}
+                      ></motion.div>
+                      <motion.div
+                        className="w-2 h-2 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: Infinity,
+                          delay: 0.4,
+                        }}
+                      ></motion.div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
             )}
@@ -513,20 +695,21 @@ export default function ChatPage() {
 
         {/* 底部输入栏 - 简洁设计 */}
         <div
-          className="fixed left-0 right-0 mobile-input-container bg-gradient-to-t from-white to-gray-50 z-50
-                      px-2 py-1 w-full overflow-hidden shadow-lg"
+          className="fixed left-0 right-0 mobile-input-container z-50 px-4 py-3 w-full overflow-hidden shadow-2xl"
           style={{
             bottom: "0",
+            background: "linear-gradient(90deg, #f59e0b 0%, #ea580c 100%)",
+            borderTop: "4px solid #92400e",
             overscrollBehavior: "none",
-            paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
-            paddingTop: "0.25rem",
+            paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+            paddingTop: "0.75rem",
             maxWidth: "100vw",
           }}
         >
           <div className="relative z-10">
             {/* 多图片预览区域 */}
             {imagePreviews.length > 0 && (
-              <div className="mb-2 max-h-28 overflow-y-auto bg-gray-50 rounded-lg p-2">
+              <div className="mb-3 max-h-28 overflow-y-auto bg-white rounded-xl p-3 border-2 border-orange-300 shadow-lg">
                 <div className="flex flex-wrap gap-2 mb-2">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative inline-block group">
@@ -591,25 +774,22 @@ export default function ChatPage() {
                 id="camera-input"
               />
 
-              {/* 输入框容器 - 美化对话气泡样式 */}
-              <div
-                className="relative w-full bg-white rounded-3xl shadow-xl border-2 border-blue-100 overflow-hidden"
-                style={{ border: "none" }}
-              >
+              {/* 输入框容器 - 简洁设计 */}
+              <div className="relative w-full bg-white rounded-2xl shadow-lg border-2 border-orange-300 overflow-hidden">
                 <div className="flex items-end">
                   {/* 文本输入区域 */}
                   <div className="flex-1 min-w-0">
                     <TextareaAutosize
                       ref={textareaRef}
                       className="w-full bg-transparent border-0
-                                 py-1 pl-2 pr-12 text-xs focus:outline-none focus:ring-0 focus:border-0 placeholder-gray-400 resize-none shadow-none
-                                 max-h-12 leading-relaxed font-medium"
+                                 py-3 pl-4 pr-12 text-sm focus:outline-none focus:ring-0 focus:border-0 placeholder-gray-500 resize-none shadow-none
+                                 max-h-16 leading-relaxed font-medium text-gray-800"
                       style={{ outline: "none", boxShadow: "none" }}
                       placeholder={
                         selectedImages.length > 0 &&
                         !imagePreviews.includes("loading")
                           ? "描述一下这些图片..."
-                          : "请输入您的问题..."
+                          : "输入消息或点击🎤开始语音对话..."
                       }
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -625,34 +805,40 @@ export default function ChatPage() {
                     />
                   </div>
 
-                  {/* 右侧按钮组 - 嵌入在输入框内 */}
-                  <div className="flex items-center gap-0.5 pr-1 pb-0.5">
+                  {/* 右侧按钮组 - 现代化设计 */}
+                  <div className="flex items-center gap-2 pr-3 pb-2">
                     {/* 相册选择按钮 */}
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => fileInputRef.current?.click()}
-                      className="bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-gray-600
-                                 w-5 h-5 rounded-full flex items-center justify-center
-                                 transition-all duration-200 shadow-md border border-blue-200"
+                      className="text-white w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg animate-pulse"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                        border: "2px solid white",
+                      }}
                       title="从相册选择"
                     >
-                      <span className="text-xs">🖼️</span>
+                      <span className="text-sm">🖼️</span>
                     </motion.button>
 
                     {/* 相机拍照按钮 (移动端) */}
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() =>
                         document.getElementById("camera-input")?.click()
                       }
-                      className="bg-gradient-to-br from-green-50 to-blue-50 hover:from-green-100 hover:to-blue-100 text-gray-600
-                                 w-5 h-5 rounded-full flex items-center justify-center
-                                 transition-all duration-200 lg:hidden shadow-md border border-green-200"
+                      className="text-white w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 lg:hidden shadow-lg animate-pulse"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                        border: "2px solid white",
+                      }}
                       title="拍照"
                     >
-                      <span className="text-xs">📷</span>
+                      <span className="text-sm">📷</span>
                     </motion.button>
 
                     {/* 语音识别按钮 */}
@@ -746,17 +932,38 @@ export default function ChatPage() {
                       placeholder="点击说话"
                     />
 
-                    {/* 发送按钮 - 嵌入在输入框内 */}
+                    {/* 发送按钮 - 简洁设计 */}
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={clsx(
-                        "w-5 h-5 rounded-full font-bold text-xs transition-all duration-200 flex items-center justify-center shadow-lg",
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className={`w-8 h-8 rounded-full font-bold text-sm transition-all duration-200 flex items-center justify-center shadow-md ${
                         (input.trim() || selectedImages.length > 0) &&
+                        !imagePreviews.includes("loading")
+                          ? "animate-pulse"
+                          : ""
+                      }`}
+                      style={{
+                        background:
+                          (input.trim() || selectedImages.length > 0) &&
                           !imagePreviews.includes("loading")
-                          ? "bg-blue-500 hover:bg-blue-600 text-white"
-                          : "bg-gray-300 cursor-not-allowed text-gray-500"
-                      )}
+                            ? "linear-gradient(135deg, #ec4899 0%, #dc2626 100%)"
+                            : "#d1d5db",
+                        color:
+                          (input.trim() || selectedImages.length > 0) &&
+                          !imagePreviews.includes("loading")
+                            ? "white"
+                            : "#6b7280",
+                        border:
+                          (input.trim() || selectedImages.length > 0) &&
+                          !imagePreviews.includes("loading")
+                            ? "2px solid white"
+                            : "none",
+                        cursor:
+                          (input.trim() || selectedImages.length > 0) &&
+                          !imagePreviews.includes("loading")
+                            ? "pointer"
+                            : "not-allowed",
+                      }}
                       onClick={handleSend}
                       disabled={
                         (!input.trim() && selectedImages.length === 0) ||
