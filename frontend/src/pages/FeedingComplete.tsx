@@ -50,7 +50,7 @@ export default function FeedingComplete() {
   }, [selectedPetId]);
 
   const handleBack = () => {
-    navigate("/feeding-plan", { state: { selectedPetId: selectedPetId } });
+    navigate(-1);
   };
 
   // 确认完成喂食
@@ -66,9 +66,9 @@ export default function FeedingComplete() {
     );
     console.log("已设置喂食任务完成标记");
 
-    // 2秒后自动返回喂食计划页面
+    // 2秒后自动返回上一个页面
     setTimeout(() => {
-      navigate("/feeding-plan", { state: { selectedPetId: selectedPetId } });
+      navigate(-1);
     }, 2000);
   };
 

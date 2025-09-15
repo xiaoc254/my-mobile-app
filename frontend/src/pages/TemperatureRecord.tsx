@@ -73,7 +73,7 @@ export default function TemperatureRecord() {
 
   // 处理返回
   const handleBack = () => {
-    navigate("/pet");
+    navigate(-1);
   };
 
   // 添加新记录

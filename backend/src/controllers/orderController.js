@@ -1,6 +1,34 @@
 import { Order } from "../modules/order.js";
 import mongoose from "mongoose";
 
+// 辅助函数：格式化订单数据
+const formatOrderResponse = (order) => {
+  return {
+    ...order,
+    id: order._id.toString(),
+    items: order.items.map(item => {
+      // 如果商品已被删除，跳过此订单项（不返回无效数据）
+      if (!item.productId) {
+        console.warn(`订单项包含无效商品引用，将被过滤: ${item._id}`);
+        return null; // 返回 null，稍后过滤掉
+      }
+
+      // 商品存在的情况
+      return {
+        ...item,
+        id: item._id?.toString() || item.productId._id?.toString(),
+        productId: item.productId._id.toString(),
+        productName: item.productId.name || item.productName,
+        productImage: item.productId.image || item.productImage,
+        productBrand: item.productId.brand || item.productBrand || '未知品牌',
+        name: item.productId.name || item.productName,
+        image: item.productId.image || item.productImage,
+        price: item.productId.price || item.price
+      };
+    }).filter(item => item !== null) // 过滤掉无效的项目
+  };
+};
+
 // 获取用户订单列表
 export const getOrders = async (req, res) => {
   try {
@@ -18,7 +46,7 @@ export const getOrders = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const orders = await Order.find(query)
-      .populate('items.productId', 'name image price')
+      .populate('items.productId', 'name image price brand')
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 })
@@ -26,15 +54,8 @@ export const getOrders = async (req, res) => {
 
     const total = await Order.countDocuments(query);
 
-    // 将 _id 字段映射为 id 字段
-    const ordersWithId = orders.map(order => ({
-      ...order,
-      id: order._id.toString(),
-      items: order.items.map(item => ({
-        ...item,
-        id: item._id?.toString() || item.productId?._id?.toString()
-      }))
-    }));
+    // 格式化订单数据
+    const ordersWithId = orders.map(order => formatOrderResponse(order));
 
     res.json({
       success: true,
@@ -73,7 +94,7 @@ export const getOrderById = async (req, res) => {
     }
 
     const order = await Order.findOne({ _id: id, userId })
-      .populate('items.productId', 'name image price')
+      .populate('items.productId', 'name image price brand')
       .lean();
 
     if (!order) {
@@ -83,15 +104,8 @@ export const getOrderById = async (req, res) => {
       });
     }
 
-    // 将 _id 字段映射为 id 字段
-    const orderWithId = {
-      ...order,
-      id: order._id.toString(),
-      items: order.items.map(item => ({
-        ...item,
-        id: item._id?.toString() || item.productId?._id?.toString()
-      }))
-    };
+    // 格式化订单数据
+    const orderWithId = formatOrderResponse(order);
 
     res.json({
       success: true,
@@ -113,7 +127,7 @@ export const createOrder = async (req, res) => {
     const userId = req.user.id;
     const { items, shippingAddress, paymentMethod, remark } = req.body;
 
-    console.log('创建订单请求:', { userId, items, shippingAddress, paymentMethod, remark });
+    // console.log('创建订单请求:', { userId, items, shippingAddress, paymentMethod, remark });
 
     // 验证必要字段
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -130,52 +144,40 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // 计算总金额
-    const totalAmount = items.reduce((sum, item) => {
-      return sum + (item.price * item.quantity);
-    }, 0);
+    // 先验证商品并计算真实总金额
+    const { Product } = await import('../modules/product.js');
+    let calculatedTotalAmount = 0;
 
-    // 处理商品数据 - 使用真实的商品或创建测试商品
+    // 验证和处理商品数据 - 只使用真实商品数据
     const processedItems = await Promise.all(items.map(async (item) => {
-      let productId = item.productId;
-
-      // 如果productId无效，尝试找到第一个可用商品
-      if (!productId || !mongoose.isValidObjectId(productId)) {
-        try {
-          const { Product } = await import('../modules/product.js');
-          const firstProduct = await Product.findOne();
-          if (firstProduct) {
-            productId = firstProduct._id;
-            console.log('使用第一个可用商品ID:', productId);
-          } else {
-            // 如果没有商品，创建一个测试商品
-            const testProduct = new Product({
-              name: '测试商品',
-              brand: '测试品牌',
-              description: '这是一个测试商品',
-              price: 99.99,
-              image: '/images/test-product.jpg',
-              category: 'test',
-              stock: 999
-            });
-            await testProduct.save();
-            productId = testProduct._id;
-            console.log('创建测试商品ID:', productId);
-          }
-        } catch (error) {
-          console.log('获取商品失败，使用随机ObjectId:', error.message);
-          productId = new mongoose.Types.ObjectId();
-        }
+      // 验证商品ID
+      if (!item.productId || !mongoose.isValidObjectId(item.productId)) {
+        throw new Error(`无效的商品ID: ${item.productId}`);
       }
 
+      // 验证商品是否存在
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(`商品不存在: ${item.productId}`);
+      }
+
+      // 验证库存
+      if (product.stock < item.quantity) {
+        throw new Error(`商品 ${product.name} 库存不足，当前库存: ${product.stock}`);
+      }
+
+      // 计算真实总金额
+      calculatedTotalAmount += product.price * item.quantity;
+
+      // 使用真实商品数据
       return {
-        productId,
-        productName: item.productName || '测试商品',
-        productImage: item.productImage || '/images/default-product.jpg',
-        productBrand: item.productBrand || '默认品牌',
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        originalPrice: item.originalPrice,
+        productId: product._id,
+        productName: product.name,
+        productImage: product.image,
+        productBrand: product.brand,
+        quantity: item.quantity,
+        price: product.price, // 使用商品真实价格
+        originalPrice: product.originalPrice,
         spec: item.spec || '默认规格'
       };
     }));
@@ -191,27 +193,22 @@ export const createOrder = async (req, res) => {
       orderNumber, // 手动设置订单号
       items: processedItems,
       shippingAddress,
-      totalAmount,
+      totalAmount: calculatedTotalAmount, // 使用计算出的真实总金额
       paymentMethod: paymentMethod || 'wechat',
       remark: remark || ''
     };
 
-    console.log('处理后的订单数据:', JSON.stringify(orderData, null, 2));
+    // console.log('处理后的订单数据:', JSON.stringify(orderData, null, 2));
 
     const order = new Order(orderData);
     await order.save();
 
-    // 返回订单信息 - 不使用 populate 避免因为模拟数据导致的错误
-    const savedOrder = await Order.findById(order._id).lean();
+    // 返回订单信息 - 使用 populate 以保持数据格式一致
+    const savedOrder = await Order.findById(order._id)
+      .populate('items.productId', 'name image price brand')
+      .lean();
 
-    const orderWithId = {
-      ...savedOrder,
-      id: savedOrder._id.toString(),
-      items: savedOrder.items.map(item => ({
-        ...item,
-        id: item._id?.toString() || item.productId?.toString()
-      }))
-    };
+    const orderWithId = formatOrderResponse(savedOrder);
 
     res.status(201).json({
       success: true,
@@ -219,7 +216,7 @@ export const createOrder = async (req, res) => {
       message: '订单创建成功'
     });
   } catch (error) {
-    console.error('创建订单错误:', error);
+    // console.error('创建订单错误:', error);
     res.status(500).json({
       success: false,
       message: '创建订单失败',
@@ -260,7 +257,8 @@ export const updateOrderStatus = async (req, res) => {
       { _id: id, userId },
       updateData,
       { new: true, runValidators: true }
-    );
+    )
+    .populate('items.productId', 'name image price brand');
 
     if (!order) {
       return res.status(404).json({
@@ -269,10 +267,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const orderWithId = {
-      ...order.toObject(),
-      id: order._id.toString()
-    };
+    const orderWithId = formatOrderResponse(order.toObject());
 
     res.json({
       success: true,
@@ -302,7 +297,8 @@ export const cancelOrder = async (req, res) => {
         updatedAt: new Date()
       },
       { new: true, runValidators: true }
-    );
+    )
+    .populate('items.productId', 'name image price brand');
 
     if (!order) {
       return res.status(404).json({
@@ -311,10 +307,7 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    const orderWithId = {
-      ...order.toObject(),
-      id: order._id.toString()
-    };
+    const orderWithId = formatOrderResponse(order.toObject());
 
     res.json({
       success: true,

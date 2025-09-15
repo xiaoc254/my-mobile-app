@@ -73,7 +73,7 @@ export default function ExercisePlan() {
 
   // 处理返回
   const handleBack = () => {
-    navigate("/pet");
+    navigate(-1);
   };
 
   // 切换计划完成状态

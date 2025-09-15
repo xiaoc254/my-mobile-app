@@ -1,6 +1,50 @@
 import { Cart } from "../modules/cart.js";
 import { Product } from "../modules/product.js";
 
+// 辅助函数：将购物车数据转换为前端需要的格式
+const formatCartResponse = (cart) => {
+  if (!cart) {
+    return null;
+  }
+
+  const cartObj = cart.toObject ? cart.toObject() : cart;
+
+  return {
+    ...cartObj,
+    id: cart._id.toString(),
+    items: cart.items.map(item => {
+      const itemObj = item.toObject ? item.toObject() : item;
+
+      // 安全地获取基础字段
+      const safeId = item._id ? item._id.toString() : Date.now().toString();
+
+      // 检查是否有 populate 的商品数据
+      if (item.productId && typeof item.productId === 'object' && item.productId._id) {
+        return {
+          ...itemObj,
+          id: safeId,
+          productId: item.productId._id.toString(),
+          productName: item.productId.name || item.productName || '未知商品',
+          productImage: item.productId.image || item.productImage || '/uploads/OIP (4).jpg',
+          productBrand: item.productId.brand || item.productBrand || '未知品牌',
+          price: item.productId.price || item.price || 0,
+          originalPrice: item.productId.originalPrice || item.originalPrice || 0
+        };
+      } else if (item.productId && item.productId.toString() !== 'unknown') {
+        // 如果没有 populate，但有有效的商品ID
+        return {
+          ...itemObj,
+          id: safeId,
+          productId: item.productId.toString()
+        };
+      } else {
+        // 无效的商品项，返回 null 稍后过滤
+        return null;
+      }
+    }).filter(item => item !== null) // 过滤掉无效的商品项
+  };
+};
+
 // 获取用户购物车
 export const getCart = async (req, res) => {
   try {
@@ -14,15 +58,8 @@ export const getCart = async (req, res) => {
       await cart.save();
     }
 
-    // 将 _id 字段映射为 id 字段
-    const cartWithId = {
-      ...cart.toObject(),
-      id: cart._id.toString(),
-      items: cart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    // 格式化购物车数据
+    const cartWithId = formatCartResponse(cart);
 
     res.json({
       success: true,
@@ -85,16 +122,9 @@ export const addToCart = async (req, res) => {
     const cart = await Cart.addItem(userId, itemData);
 
     // 重新获取更新后的购物车数据
-    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock');
+    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock brand');
 
-    const cartWithId = {
-      ...updatedCart.toObject(),
-      id: updatedCart._id.toString(),
-      items: updatedCart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    const cartWithId = formatCartResponse(updatedCart);
 
     res.json({
       success: true,
@@ -128,16 +158,9 @@ export const updateCartItem = async (req, res) => {
     const cart = await Cart.updateItemQuantity(userId, itemId, parseInt(quantity));
 
     // 重新获取更新后的购物车数据
-    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock');
+    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock brand');
 
-    const cartWithId = {
-      ...updatedCart.toObject(),
-      id: updatedCart._id.toString(),
-      items: updatedCart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    const cartWithId = formatCartResponse(updatedCart);
 
     res.json({
       success: true,
@@ -164,16 +187,9 @@ export const toggleCartItem = async (req, res) => {
     const cart = await Cart.toggleItemSelection(userId, itemId, selected);
 
     // 重新获取更新后的购物车数据
-    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock');
+    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock brand');
 
-    const cartWithId = {
-      ...updatedCart.toObject(),
-      id: updatedCart._id.toString(),
-      items: updatedCart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    const cartWithId = formatCartResponse(updatedCart);
 
     res.json({
       success: true,
@@ -199,16 +215,9 @@ export const removeFromCart = async (req, res) => {
     const cart = await Cart.removeItem(userId, itemId);
 
     // 重新获取更新后的购物车数据
-    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock');
+    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock brand');
 
-    const cartWithId = {
-      ...updatedCart.toObject(),
-      id: updatedCart._id.toString(),
-      items: updatedCart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    const cartWithId = formatCartResponse(updatedCart);
 
     res.json({
       success: true,
@@ -275,16 +284,9 @@ export const toggleAllItems = async (req, res) => {
     await cart.save();
 
     // 重新获取更新后的购物车数据
-    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock');
+    const updatedCart = await Cart.findOne({ userId }).populate('items.productId', 'name image price originalPrice stock brand');
 
-    const cartWithId = {
-      ...updatedCart.toObject(),
-      id: updatedCart._id.toString(),
-      items: updatedCart.items.map(item => ({
-        ...item.toObject(),
-        id: item._id.toString()
-      }))
-    };
+    const cartWithId = formatCartResponse(updatedCart);
 
     res.json({
       success: true,

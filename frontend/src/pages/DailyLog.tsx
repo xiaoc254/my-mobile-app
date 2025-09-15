@@ -70,7 +70,7 @@ export default function DailyLog() {
 
   // 处理返回
   const handleBack = () => {
-    navigate("/pet");
+    navigate(-1);
   };
 
   // 添加新日志

@@ -145,7 +145,7 @@ export default function PetDetail() {
   }, [currentPetId]);
 
   const handleBack = () => {
-    navigate("/pet");
+    navigate(-1);
   };
 
   // 切换宠物

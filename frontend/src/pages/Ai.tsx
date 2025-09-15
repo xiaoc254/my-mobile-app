@@ -293,7 +293,7 @@ export default function ChatPage() {
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100 px-1 py-1 flex items-center justify-between h-[40px] z-10 shadow-md w-full overflow-hidden">
           <div className="flex items-center gap-1 w-full min-w-0">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/profile")}
               className="text-gray-700 text-sm font-medium hover:text-blue-600 transition-all duration-200 hover:scale-110"
             >
               ←

@@ -134,7 +134,7 @@ export default function FeedingPlan() {
 
   // 处理返回
   const handleBack = () => {
-    navigate("/pet");
+    navigate(-1);
   };
 
   // 跳转到完成喂食页面 - 直接跳转，无状态变化

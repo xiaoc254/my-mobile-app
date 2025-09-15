@@ -22,7 +22,6 @@ import FeedingPlan from "../pages/FeedingPlan";
 import DailyLog from "../pages/DailyLog";
 import TemperatureRecord from "../pages/TemperatureRecord";
 import FeedingComplete from "../pages/FeedingComplete";
-import TestPage from "../pages/TestPage";
 import Welcome from "../pages/Welcome";
 import PetRecipeSelect from "../pages/PetRecipeSelect";
 import DogRecipe from "../pages/DogRecipe";
@@ -32,12 +31,8 @@ import VoiceAnalysis from "../pages/VoiceAnalysis";
 import VoiceAnalysisResult from "../pages/VoiceAnalysisResult";
 import VisualBehaviorAnalysis from "../pages/VisualBehaviorAnalysis";
 import VisualAnalysisResult from "../pages/VisualAnalysisResult";
-import MobileMediaTest from "../pages/MobileMediaTest";
-import DevEnvironmentGuide from "../pages/DevEnvironmentGuide";
 import AuthCallback from "../pages/AuthCallback";
 import SMSLogin from "../pages/SMSLogin";
-import SMSTest from "../pages/SMSTest";
-import AuthDebug from "../pages/AuthDebug";
 import WXCallback from "../pages/WXCallback";
 
 // 路由配置接口
@@ -81,20 +76,6 @@ export const routes: RouteConfig[] = [
     requireAuth: false,
   },
   {
-    path: "/sms-test",
-    component: SMSTest,
-    title: "短信测试",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/auth-debug",
-    component: AuthDebug,
-    title: "授权调试",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
     path: "/wx-callback",
     component: WXCallback,
     title: "微信回调",
@@ -119,13 +100,6 @@ export const routes: RouteConfig[] = [
     path: "/feeding-complete",
     component: FeedingComplete,
     title: "喂食完成",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/test-page",
-    component: TestPage,
-    title: "测试页面",
     hideTabBar: true,
     requireAuth: false,
   },
@@ -329,20 +303,6 @@ export const routes: RouteConfig[] = [
     path: "/visual-analysis-result",
     component: VisualAnalysisResult,
     title: "视觉分析结果",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/mobile-media-test",
-    component: MobileMediaTest,
-    title: "移动端媒体权限测试",
-    hideTabBar: true,
-    requireAuth: false,
-  },
-  {
-    path: "/dev-environment-guide",
-    component: DevEnvironmentGuide,
-    title: "开发环境配置指南",
     hideTabBar: true,
     requireAuth: false,
   },

@@ -42,8 +42,17 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// 配置静态文件服务 - 提供图片访问
+app.use('/uploads', express.static(path.join(__dirname, '../public/images')));
+
 // 注册所有路由（包括 ai、auth 等）
 app.use("/api", routes);
 
 const PORT = config.PORT;
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+const HOST = '0.0.0.0'; // 监听所有网络接口
+app.listen(PORT, HOST, () => {
+  console.log(`Server running at:`);
+  console.log(`  - Local:   http://localhost:${PORT}`);
+  console.log(`  - Network: http://172.20.10.2:${PORT}`);
+  console.log(`  - All interfaces: http://${HOST}:${PORT}`);
+});

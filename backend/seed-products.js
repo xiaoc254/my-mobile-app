@@ -11,10 +11,10 @@ const sampleProducts = [
     name: "高端猫粮 - 三文鱼口味",
     brand: "皇家宠物",
     description: "专为成年猫咪设计的营养均衡猫粮，含有丰富的三文鱼蛋白质，支持健康的皮毛和消化系统。无添加防腐剂，天然健康。",
-    image: "/images/products/cat-food-salmon.jpg",
+    image: "/uploads/9686762819_260695147.310x310.jpg",
     images: [
-      "/images/products/cat-food-salmon-1.jpg",
-      "/images/products/cat-food-salmon-2.jpg"
+      "/uploads/9686762819_260695147.310x310.jpg",
+      "/uploads/eOlTs0bQZx9zomh9z1ma9g.jpg"
     ],
     price: 128.00,
     originalPrice: 158.00,
@@ -35,10 +35,10 @@ const sampleProducts = [
     name: "狗狗互动玩具球",
     brand: "宠物乐园",
     description: "智能互动球玩具，内置感应器可自动移动，激发狗狗的运动兴趣和狩猎本能。安全材质制作，耐咬耐玩。",
-    image: "/images/products/dog-interactive-ball.jpg",
+    image: "/uploads/O1CN01lR6PzC1HFvLsYiPcX_!!737880729.avif",
     images: [
-      "/images/products/dog-interactive-ball-1.jpg",
-      "/images/products/dog-interactive-ball-2.jpg"
+      "/uploads/O1CN01lR6PzC1HFvLsYiPcX_!!737880729.avif",
+      "/uploads/O1CN01ltul2t1lwSkhQm10c_!!0-item_pic.avif"
     ],
     price: 89.00,
     originalPrice: 120.00,
@@ -59,10 +59,10 @@ const sampleProducts = [
     name: "宠物专用洗护套装",
     brand: "清洁专家",
     description: "专业宠物洗护用品套装，包含洗发水和护毛素。温和配方不刺激皮肤，适合各种毛发类型的宠物使用。",
-    image: "/images/products/pet-shampoo-set.jpg",
+    image: "/uploads/O1CN01Vsygzb1WggvVutT8Q_!!0-item_pic.avif",
     images: [
-      "/images/products/pet-shampoo-set-1.jpg",
-      "/images/products/pet-shampoo-set-2.jpg"
+      "/uploads/O1CN01Vsygzb1WggvVutT8Q_!!0-item_pic.avif",
+      "/uploads/O1CN01ZKiaUV1U5w8QicmEb_!!3322882467-0-cib.310x310.jpg"
     ],
     price: 68.00,
     originalPrice: 88.00,
@@ -83,10 +83,10 @@ const sampleProducts = [
     name: "猫咪抓板玩具",
     brand: "喵星球",
     description: "天然剑麻制作的猫抓板，帮助猫咪磨爪子，保护家具。底座稳固，不易倾倒，附带逗猫棒增加趣味性。",
-    image: "/images/products/cat-scratching-post.jpg",
+    image: "/uploads/OIP (4).jpg",
     images: [
-      "/images/products/cat-scratching-post-1.jpg",
-      "/images/products/cat-scratching-post-2.jpg"
+      "/uploads/OIP (4).jpg",
+      "/uploads/sg-11134201-7rd5o-m6nwi26a7dsq5e.jpg"
     ],
     price: 156.00,
     originalPrice: 198.00,
@@ -107,10 +107,10 @@ const sampleProducts = [
     name: "狗狗营养膏",
     brand: "健康伙伴",
     description: "高营养密度的狗狗营养膏，富含维生素和矿物质。适合幼犬、老年犬及体弱犬只补充营养。口感佳，易吸收。",
-    image: "/images/products/dog-nutrition-paste.jpg",
+    image: "/uploads/9686762819_260695147.310x310.jpg",
     images: [
-      "/images/products/dog-nutrition-paste-1.jpg",
-      "/images/products/dog-nutrition-paste-2.jpg"
+      "/uploads/9686762819_260695147.310x310.jpg",
+      "/uploads/eOlTs0bQZx9zomh9z1ma9g.jpg"
     ],
     price: 45.00,
     originalPrice: 65.00,
@@ -131,10 +131,10 @@ const sampleProducts = [
     name: "宠物自动饮水机",
     brand: "智能生活",
     description: "智能循环过滤饮水机，保持水质新鲜。静音设计，LED指示灯显示工作状态。大容量设计，适合多宠物家庭。",
-    image: "/images/products/pet-water-fountain.jpg",
+    image: "/uploads/O1CN01lR6PzC1HFvLsYiPcX_!!737880729.avif",
     images: [
-      "/images/products/pet-water-fountain-1.jpg",
-      "/images/products/pet-water-fountain-2.jpg"
+      "/uploads/O1CN01lR6PzC1HFvLsYiPcX_!!737880729.avif",
+      "/uploads/O1CN01ltul2t1lwSkhQm10c_!!0-item_pic.avif"
     ],
     price: 198.00,
     originalPrice: 258.00,
@@ -155,10 +155,10 @@ const sampleProducts = [
     name: "小型犬专用狗粮",
     brand: "小巧美味",
     description: "专为小型犬设计的营养狗粮，颗粒小巧易咀嚼。富含优质蛋白质和必需脂肪酸，支持小型犬的健康成长。",
-    image: "/images/products/small-dog-food.jpg",
+    image: "/uploads/O1CN01Vsygzb1WggvVutT8Q_!!0-item_pic.avif",
     images: [
-      "/images/products/small-dog-food-1.jpg",
-      "/images/products/small-dog-food-2.jpg"
+      "/uploads/O1CN01Vsygzb1WggvVutT8Q_!!0-item_pic.avif",
+      "/uploads/O1CN01ZKiaUV1U5w8QicmEb_!!3322882467-0-cib.310x310.jpg"
     ],
     price: 98.00,
     originalPrice: 128.00,
@@ -179,10 +179,10 @@ const sampleProducts = [
     name: "宠物指甲剪套装",
     brand: "护理专家",
     description: "专业宠物指甲护理套装，包含指甲剪、指甲锉和止血粉。人体工学设计，操作简单安全，适合各种大小的宠物。",
-    image: "/images/products/pet-nail-clipper-set.jpg",
+    image: "/uploads/OIP (4).jpg",
     images: [
-      "/images/products/pet-nail-clipper-set-1.jpg",
-      "/images/products/pet-nail-clipper-set-2.jpg"
+      "/uploads/OIP (4).jpg",
+      "/uploads/sg-11134201-7rd5o-m6nwi26a7dsq5e.jpg"
     ],
     price: 35.00,
     originalPrice: 50.00,

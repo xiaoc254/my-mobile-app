@@ -14,6 +14,7 @@ import {
 } from "antd-mobile";
 import { ShopbagOutline } from "antd-mobile-icons";
 import { productAPI, cartAPI, IMAGE_BASE_URL } from "../services/apiz";
+import bannerImage from "../image/c288acadb0dc509427ec808cf40b0b9a.png";
 
 interface Product {
   id: string;
@@ -60,18 +61,9 @@ export default function Shop() {
           );
         }
 
-        // 确保产品ID是字符串格式并添加调试信息
+        // 确保产品ID是字符串格式
         const validatedProducts = fetchedProducts.map((product: any) => {
           const productId = product.id || product._id;
-          console.log(
-            "Product from backend:",
-            product.name,
-            "ID:",
-            productId,
-            "Type:",
-            typeof productId
-          );
-
           return {
             ...product,
             id: String(productId), // 确保ID是字符串
@@ -85,7 +77,7 @@ export default function Shop() {
         setProducts([]);
       }
     } catch (error) {
-      console.error("获取商品数据错误:", error);
+      // console.error("获取商品数据错误:", error);
       Toast.show("网络错误，请稍后重试");
       setProducts([]);
     } finally {
@@ -127,12 +119,6 @@ export default function Shop() {
   };
 
   const handleProductClick = (productId: string) => {
-    console.log(
-      "Clicking product with ID:",
-      productId,
-      "Type:",
-      typeof productId
-    );
     if (!productId || productId === "undefined") {
       Toast.show("商品ID无效");
       return;
@@ -163,7 +149,7 @@ export default function Shop() {
         Toast.show(response.message || "添加到购物车失败");
       }
     } catch (error: any) {
-      console.error("添加到购物车错误:", error);
+      // console.error("添加到购物车错误:", error);
 
       // 如果是认证错误，提示用户登录
       if (error.response?.status === 401) {
@@ -269,7 +255,7 @@ export default function Shop() {
       {/* 活动横幅 */}
       <div style={{ margin: "12px 16px" }}>
         <Image
-          src={`${IMAGE_BASE_URL}/images/products/商品活动图.jpg`}
+          src={bannerImage}
           width="100%"
           height={160}
           style={{

@@ -30,12 +30,6 @@ export default function Home() {
       onClick: () => navigate("/health-monitor"),
     },
     {
-      icon: "!",
-      title: "安全预警",
-      bgColor: "#fff",
-      onClick: () => navigate("/ai"),
-    },
-    {
       icon: "☕",
       title: "科学食谱",
       bgColor: "#fff",
@@ -131,7 +125,7 @@ export default function Home() {
 
       {/* Feature Icons */}
       <div style={{ padding: "20px" }}>
-        <Grid columns={3} gap={20}>
+        <Grid columns={2} gap={20}>
           {featureItems.map((item, index) => (
             <Grid.Item key={index}>
               <div

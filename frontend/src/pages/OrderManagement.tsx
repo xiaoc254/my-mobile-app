@@ -109,7 +109,7 @@ export default function OrderManagement() {
     } catch (error) {
       console.error("获取订单失败:", error);
       Toast.show("获取订单失败");
-      // 使用模拟数据作为后备
+      // 设置为空数组
       setOrders([]);
     } finally {
       setLoading(false);
@@ -252,14 +252,10 @@ export default function OrderManagement() {
     try {
       const orderData = {
         items: checkoutItems.map((item) => ({
-          productId: item.productId,
-          productName: item.productName,
-          productImage: item.productImage,
-          productBrand: item.productBrand || "",
-          price: item.price,
-          originalPrice: item.originalPrice,
+          productId: item.productId, // 传递真实商品ID
           quantity: item.quantity,
-          spec: item.spec,
+          spec: item.spec || "默认规格",
+          // 不传递价格和商品信息，让后端从数据库获取真实数据
         })),
         shippingAddress,
         paymentMethod,
@@ -420,7 +416,7 @@ export default function OrderManagement() {
             >
               <div style={{ display: "flex", alignItems: "center" }}>
                 <Image
-                  src={`${IMAGE_BASE_URL}${item.productImage}`}
+                  src={`${IMAGE_BASE_URL}${item.productImage || item.image}`}
                   width={60}
                   height={60}
                   style={{ borderRadius: "8px", marginRight: "12px" }}
@@ -714,78 +710,114 @@ export default function OrderManagement() {
               </div>
 
               {/* 商品信息 */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  cursor: "pointer",
-                  marginBottom: "12px",
-                }}
-                onClick={() => handleProductClick(order.items[0].productId)}
-              >
-                <Image
-                  src={order.items[0].image}
-                  width={80}
-                  height={80}
-                  style={{
-                    borderRadius: "8px",
-                    marginRight: "12px",
-                    flexShrink: 0,
-                  }}
-                  fit="cover"
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ marginBottom: "12px" }}>
+                {order.items.map((item, itemIndex) => (
                   <div
+                    key={itemIndex}
                     style={{
-                      fontSize: "14px",
-                      lineHeight: "1.4",
-                      marginBottom: "8px",
-                      overflow: "hidden",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      color: "#333",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      cursor: "pointer",
+                      marginBottom:
+                        itemIndex < order.items.length - 1 ? "12px" : "0",
+                      paddingBottom:
+                        itemIndex < order.items.length - 1 ? "12px" : "0",
+                      borderBottom:
+                        itemIndex < order.items.length - 1
+                          ? "1px solid #f0f0f0"
+                          : "none",
                     }}
+                    onClick={() => handleProductClick(item.productId)}
                   >
-                    {order.items[0].name}
-                  </div>
+                    <Image
+                      src={`${IMAGE_BASE_URL}${
+                        item.image || item.productImage
+                      }`}
+                      width={80}
+                      height={80}
+                      style={{
+                        borderRadius: "8px",
+                        marginRight: "12px",
+                        flexShrink: 0,
+                      }}
+                      fit="cover"
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          lineHeight: "1.4",
+                          marginBottom: "8px",
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          color: "#333",
+                        }}
+                      >
+                        {item.name || item.productName}
+                      </div>
 
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#999",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    规格：{order.items[0].spec}
-                  </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#999",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        规格：{item.spec}
+                      </div>
 
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "16px",
+                            color: "#ff6b35",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ¥{item.price}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                          }}
+                        >
+                          x{item.quantity}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* 如果有多个商品，显示商品总数和总价 */}
+                {order.items.length > 1 && (
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      fontSize: "12px",
+                      color: "#666",
+                      padding: "8px 12px",
+                      backgroundColor: "#f8f8f8",
+                      borderRadius: "4px",
+                      marginTop: "8px",
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: "16px",
-                        color: "#ff6b35",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ¥{order.totalAmount}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        color: "#666",
-                      }}
-                    >
-                      x{order.items[0].quantity}
+                    <span>共 {order.items.length} 件商品</span>
+                    <span style={{ fontWeight: "bold", color: "#ff6b35" }}>
+                      订单总计：¥{order.totalAmount}
                     </span>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 底部操作区 */}
