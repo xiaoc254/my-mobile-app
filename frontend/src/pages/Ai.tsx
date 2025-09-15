@@ -11,6 +11,7 @@ import { useChatStore } from "../store/chatStore";
 import type { Message } from "../store/chatStore";
 import { formatMessageTime } from "../utils/timeUtils";
 import { compressImage } from "../utils/imageCompression";
+import { WebSpeechButton } from "../components/WebSpeechButton";
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -653,6 +654,97 @@ export default function ChatPage() {
                     >
                       <span className="text-xs">📷</span>
                     </motion.button>
+
+                    {/* 语音识别按钮 */}
+                    <WebSpeechButton
+                      onSpeechResult={(text) => {
+                        console.log("收到语音识别结果:", text);
+                        if (text.trim()) {
+                          // 直接创建用户消息并发送给AI
+                          const userMessage = {
+                            id: generateId(),
+                            role: "user" as const,
+                            text: text.trim(),
+                            timestamp: new Date(),
+                            status: "sending" as const,
+                          };
+
+                          // 添加用户消息到聊天记录
+                          addMessage(userMessage);
+
+                          // 强制滚动到底部
+                          setTimeout(() => {
+                            scrollToBottom(true);
+                          }, 50);
+
+                          // 显示AI正在打字
+                          setIsTyping(true);
+
+                          // 调用AI API
+                          const callAI = async () => {
+                            try {
+                              const getApiUrl = () => {
+                                if (import.meta.env.DEV) {
+                                  return "/api/ai";
+                                }
+                                return "/api/ai";
+                              };
+
+                              const res = await fetch(getApiUrl(), {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ prompt: text.trim() }),
+                              });
+
+                              if (!res.ok) {
+                                throw new Error(
+                                  `HTTP error! status: ${res.status}`
+                                );
+                              }
+
+                              const data = await res.json();
+
+                              // 更新用户消息状态
+                              updateMessageStatus(userMessage.id, "sent");
+
+                              // 延迟AI回复
+                              const thinkingTime = Math.random() * 1000 + 2000;
+                              setTimeout(() => {
+                                setIsTyping(false);
+                                addMessage({
+                                  id: generateId(),
+                                  role: "ai" as const,
+                                  text: data.reply,
+                                  timestamp: new Date(),
+                                  status: "sent" as const,
+                                });
+                                // AI回复后滚动到底部
+                                setTimeout(() => {
+                                  scrollToBottom(true);
+                                }, 50);
+                              }, thinkingTime);
+                            } catch (error) {
+                              console.error("AI API 调用失败:", error);
+                              setIsTyping(false);
+                              updateMessageStatus(userMessage.id, "error");
+
+                              addMessage({
+                                id: generateId(),
+                                role: "ai" as const,
+                                text: "抱歉，AI 服务暂时不可用，请稍后再试。",
+                                timestamp: new Date(),
+                                status: "sent" as const,
+                              });
+                            }
+                          };
+
+                          callAI();
+                        }
+                      }}
+                      disabled={imagePreviews.includes("loading") || isTyping}
+                      size="md"
+                      placeholder="点击说话"
+                    />
 
                     {/* 发送按钮 - 嵌入在输入框内 */}
                     <motion.button

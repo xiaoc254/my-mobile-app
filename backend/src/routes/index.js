@@ -6,6 +6,7 @@ import productRouter from "./product.js";
 import orderRouter from "./order.js";
 import categoryRouter from "./category.js";
 import cartRouter from "./cart.js";
+import speechRouter from "./speech.js";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.use("/products", productRouter);  // /api/products
 router.use("/orders", orderRouter);  // /api/orders
 router.use("/categories", categoryRouter);  // /api/categories
 router.use("/cart", cartRouter);  // /api/cart
+router.use("/speech", speechRouter);  // /api/speech
 
 export default router;
 

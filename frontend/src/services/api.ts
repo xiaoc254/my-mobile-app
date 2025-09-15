@@ -16,7 +16,7 @@ const getBaseURL = () => {
 
 const api = axios.create({
   baseURL: getBaseURL(),
-  timeout: 10000  // 增加超时时间到 10 秒
+  timeout: 30000  // 增加超时时间到 30 秒，支持语音识别
 });
 
 api.interceptors.request.use(config => {
